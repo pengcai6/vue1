@@ -1,0 +1,1 @@
+function e(o,t){try{const r=localStorage.getItem(o);return r?JSON.parse(r):t}catch(r){return console.error(`Error reading ${o} from localStorage:`,r),t}}function a(o,t){try{localStorage.setItem(o,JSON.stringify(t))}catch(r){console.error(`Error saving ${o} to localStorage:`,r)}}export{e as g,a as s};

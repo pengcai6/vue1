@@ -1,5 +1,5 @@
-import path from 'node:path'
 import Vue from '@vitejs/plugin-vue'
+import path from 'node:path'
 
 import Unocss from 'unocss/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~/': `${path.resolve(__dirname, 'src')}/`,
+      '@': `${path.resolve(__dirname, 'src')}`,
     },
   },
 
