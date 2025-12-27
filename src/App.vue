@@ -1,25 +1,28 @@
 <script setup lang="ts">
+import BaseHeader from '~/components/layouts/BaseHeader.vue'
+import BaseSide from '~/components/layouts/BaseSide.vue'
 </script>
 
 <template>
   <el-config-provider namespace="ep">
-    <BaseHeader />
-    <div class="main-container flex">
-      <BaseSide />
-      <div w="full" py="4">
-        <RouterView />
-      </div>
-    </div>
+    <el-container style="height: 100vh">
+      <el-header style="padding: 0">
+        <BaseHeader />
+      </el-header>
+      <el-container style="overflow: hidden">
+        <el-aside width="auto">
+          <BaseSide />
+        </el-aside>
+        <el-main style="padding: 0">
+          <RouterView />
+        </el-main>
+      </el-container>
+    </el-container>
   </el-config-provider>
 </template>
 
 <style>
 #app {
-  text-align: center;
   color: var(--ep-text-color-primary);
-}
-
-.main-container {
-  height: calc(100vh - var(--ep-menu-item-height) - 4px);
 }
 </style>

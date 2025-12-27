@@ -1,9 +1,7 @@
 <template>
-  <div class="intelligent-scheduling-page">
+  <div class="intelligent-scheduling-page p-5">
     <el-card class="header-card">
-      <h2 class="text-2xl font-bold mb-2">
-        大模型推理智能调度
-      </h2>
+      <h2 class="text-2xl font-bold mb-2">大模型推理智能调度</h2>
       <p class="text-gray-500">
         根据推理容器对加速器类型、数量及显存的需求，进行精确的节点匹配与绑定
       </p>
@@ -16,9 +14,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <span class="font-bold">调度任务列表</span>
-              <el-button type="primary" @click="showCreateDialog = true">
-                创建调度任务
-              </el-button>
+              <el-button type="primary" @click="showCreateDialog = true"> 创建调度任务 </el-button>
             </div>
           </template>
 
@@ -58,17 +54,10 @@
                 >
                   执行调度
                 </el-button>
-                <el-button link type="info" @click="viewTaskDetail(row)">
-                  详情
-                </el-button>
-                <el-popconfirm
-                  title="确定要删除此任务吗？"
-                  @confirm="deleteTask(row.id)"
-                >
+                <el-button link type="info" @click="viewTaskDetail(row)"> 详情 </el-button>
+                <el-popconfirm title="确定要删除此任务吗？" @confirm="deleteTask(row.id)">
                   <template #reference>
-                    <el-button link type="danger">
-                      删除
-                    </el-button>
+                    <el-button link type="danger"> 删除 </el-button>
                   </template>
                 </el-popconfirm>
               </template>
@@ -122,11 +111,7 @@
     </el-row>
 
     <!-- 创建调度任务对话框 -->
-    <el-dialog
-      v-model="showCreateDialog"
-      title="创建调度任务"
-      width="600px"
-    >
+    <el-dialog v-model="showCreateDialog" title="创建调度任务" width="600px">
       <el-form :model="taskForm" label-width="120px">
         <el-form-item label="任务名称">
           <el-input v-model="taskForm.taskName" placeholder="请输入任务名称" />
@@ -159,19 +144,25 @@
     </el-dialog>
 
     <!-- 任务详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="调度任务详情"
-      width="700px"
-    >
+    <el-dialog v-model="showDetailDialog" title="调度任务详情" width="700px">
       <el-descriptions v-if="currentTask" :column="2" border>
-        <el-descriptions-item label="任务名称">{{ currentTask.taskName }}</el-descriptions-item>
-        <el-descriptions-item label="模型名称">{{ currentTask.modelName }}</el-descriptions-item>
-        <el-descriptions-item label="GPU类型">{{ currentTask.gpuType }}</el-descriptions-item>
-        <el-descriptions-item label="GPU数量">{{ currentTask.gpuCount }} 卡</el-descriptions-item>
-        <el-descriptions-item label="显存需求">{{ currentTask.memoryRequired }} GB</el-descriptions-item>
+        <el-descriptions-item label="任务名称">
+          {{ currentTask.taskName }}
+        </el-descriptions-item>
+        <el-descriptions-item label="模型名称">
+          {{ currentTask.modelName }}
+        </el-descriptions-item>
+        <el-descriptions-item label="GPU类型">
+          {{ currentTask.gpuType }}
+        </el-descriptions-item>
+        <el-descriptions-item label="GPU数量"> {{ currentTask.gpuCount }} 卡 </el-descriptions-item>
+        <el-descriptions-item label="显存需求">
+          {{ currentTask.memoryRequired }} GB
+        </el-descriptions-item>
         <el-descriptions-item label="匹配节点">
-          <span v-if="currentTask.matchedNode" class="text-green-600">{{ currentTask.matchedNode }}</span>
+          <span v-if="currentTask.matchedNode" class="text-green-600">{{
+            currentTask.matchedNode
+          }}</span>
           <span v-else>-</span>
         </el-descriptions-item>
         <el-descriptions-item label="调度状态">
@@ -179,7 +170,9 @@
             {{ getStatusText(currentTask.status) }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="创建时间">{{ currentTask.createTime }}</el-descriptions-item>
+        <el-descriptions-item label="创建时间">
+          {{ currentTask.createTime }}
+        </el-descriptions-item>
       </el-descriptions>
 
       <div v-if="currentTask?.scheduleLog" class="mt-4">
@@ -201,9 +194,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 interface ScheduleTask {
   id: string
@@ -215,7 +207,7 @@ interface ScheduleTask {
   status: 'pending' | 'scheduled' | 'running' | 'failed'
   matchedNode?: string
   createTime: string
-  scheduleLog?: { time: string, message: string, type: string }[]
+  scheduleLog?: { time: string; message: string; type: string }[]
 }
 
 interface GPUNode {
@@ -245,7 +237,7 @@ const taskForm = ref({
 })
 
 // 初始化数据
-function initMockData() {
+function initMockData(): ScheduleTask[] {
   const tasks: ScheduleTask[] = [
     {
       id: '1',
@@ -279,8 +271,8 @@ function initMockData() {
 }
 
 // 方法
-function getStatusType(status: string) {
-  const map: Record<string, any> = {
+function getStatusType(status: string): '' | 'success' | 'warning' | 'danger' | 'info' {
+  const map: Record<string, '' | 'success' | 'warning' | 'danger' | 'info'> = {
     pending: 'info',
     scheduled: 'success',
     running: 'warning',
@@ -289,7 +281,7 @@ function getStatusType(status: string) {
   return map[status] || 'info'
 }
 
-function getStatusText(status: string) {
+function getStatusText(status: string): string {
   const map: Record<string, string> = {
     pending: '等待调度',
     scheduled: '已调度',
@@ -299,19 +291,15 @@ function getStatusText(status: string) {
   return map[status] || status
 }
 
-function getGPUTypeTag(type: string) {
-  if (type.includes('NVIDIA'))
-    return 'success'
-  if (type.includes('昇腾'))
-    return 'warning'
+function getGPUTypeTag(type: string): '' | 'success' | 'warning' | 'danger' | 'info' {
+  if (type.includes('NVIDIA')) return 'success'
+  if (type.includes('昇腾')) return 'warning'
   return 'info'
 }
 
-function getUtilizationColor(utilization: number) {
-  if (utilization < 30)
-    return '#67C23A'
-  if (utilization < 70)
-    return '#E6A23C'
+function getUtilizationColor(utilization: number): string {
+  if (utilization < 30) return '#67C23A'
+  if (utilization < 70) return '#E6A23C'
   return '#F56C6C'
 }
 
@@ -330,7 +318,7 @@ function createTask() {
   saveToStorage()
   showCreateDialog.value = false
   ElMessage.success('任务创建成功')
-  
+
   // 重置表单
   taskForm.value = {
     taskName: '',
@@ -344,26 +332,41 @@ function createTask() {
 function scheduleTask(task: ScheduleTask) {
   // 智能匹配节点
   const matchedNode = findBestNode(task)
-  
+
   if (matchedNode) {
     task.status = 'scheduled'
     task.matchedNode = matchedNode.nodeName
     task.scheduleLog = [
       { time: new Date().toLocaleTimeString(), message: '开始调度任务', type: 'info' },
-      { time: new Date().toLocaleTimeString(), message: `匹配条件: GPU类型=${task.gpuType}, 数量=${task.gpuCount}, 显存=${task.memoryRequired}GB`, type: 'info' },
-      { time: new Date().toLocaleTimeString(), message: `找到匹配节点: ${matchedNode.nodeName}`, type: 'success' },
-      { time: new Date().toLocaleTimeString(), message: `节点资源: GPU=${matchedNode.gpuType}, 可用=${matchedNode.availableGPUs}卡, 单卡显存=${matchedNode.memoryPerGPU}GB`, type: 'success' },
-      { time: new Date().toLocaleTimeString(), message: '调度成功，容器已绑定到节点', type: 'success' },
+      {
+        time: new Date().toLocaleTimeString(),
+        message: `匹配条件: GPU类型=${task.gpuType}, 数量=${task.gpuCount}, 显存=${task.memoryRequired}GB`,
+        type: 'info',
+      },
+      {
+        time: new Date().toLocaleTimeString(),
+        message: `找到匹配节点: ${matchedNode.nodeName}`,
+        type: 'success',
+      },
+      {
+        time: new Date().toLocaleTimeString(),
+        message: `节点资源: GPU=${matchedNode.gpuType}, 可用=${matchedNode.availableGPUs}卡, 单卡显存=${matchedNode.memoryPerGPU}GB`,
+        type: 'success',
+      },
+      {
+        time: new Date().toLocaleTimeString(),
+        message: '调度成功，容器已绑定到节点',
+        type: 'success',
+      },
     ]
-    
+
     // 更新节点可用资源
     matchedNode.availableGPUs -= task.gpuCount
-    setStorage('gpu-nodes', availableNodes.value)
-    
+    localStorage.setItem('gpu-nodes', JSON.stringify(availableNodes.value))
+
     saveToStorage()
     ElMessage.success(`调度成功！已绑定到节点: ${matchedNode.nodeName}`)
-  }
-  else {
+  } else {
     task.status = 'failed'
     task.scheduleLog = [
       { time: new Date().toLocaleTimeString(), message: '开始调度任务', type: 'info' },
@@ -377,12 +380,15 @@ function scheduleTask(task: ScheduleTask) {
 
 function findBestNode(task: ScheduleTask): GPUNode | null {
   // 精确匹配：GPU类型、数量、显存
-  return availableNodes.value.find(node =>
-    node.status === 'online'
-    && node.gpuType === task.gpuType
-    && node.availableGPUs >= task.gpuCount
-    && node.memoryPerGPU >= task.memoryRequired,
-  ) || null
+  return (
+    availableNodes.value.find(
+      (node) =>
+        node.status === 'online' &&
+        node.gpuType === task.gpuType &&
+        node.availableGPUs >= task.gpuCount &&
+        node.memoryPerGPU >= task.memoryRequired,
+    ) || null
+  )
 }
 
 function viewTaskDetail(task: ScheduleTask) {
@@ -391,21 +397,22 @@ function viewTaskDetail(task: ScheduleTask) {
 }
 
 function deleteTask(id: string) {
-  scheduleTasks.value = scheduleTasks.value.filter(t => t.id !== id)
+  scheduleTasks.value = scheduleTasks.value.filter((t) => t.id !== id)
   saveToStorage()
   ElMessage.success('删除成功')
 }
 
 function saveToStorage() {
-  setStorage('schedule-tasks', scheduleTasks.value)
+  localStorage.setItem('schedule-tasks', JSON.stringify(scheduleTasks.value))
 }
 
 function loadFromStorage() {
-  const stored = getStorage<ScheduleTask[]>('schedule-tasks', [])
-  scheduleTasks.value = stored.length > 0 ? stored : initMockData()
-  
+  const stored = localStorage.getItem('schedule-tasks')
+  scheduleTasks.value = stored ? JSON.parse(stored) : initMockData()
+
   // 加载GPU节点数据
-  availableNodes.value = getStorage<GPUNode[]>('gpu-nodes', [])
+  const nodesStored = localStorage.getItem('gpu-nodes')
+  availableNodes.value = nodesStored ? JSON.parse(nodesStored) : []
 }
 
 onMounted(() => {
@@ -415,12 +422,10 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .intelligent-scheduling-page {
-  padding: 20px;
-  
   .node-list {
     max-height: 600px;
     overflow-y: auto;
-    
+
     .node-item {
       padding: 15px;
       border: 1px solid #e4e7ed;
@@ -428,23 +433,23 @@ onMounted(() => {
       margin-bottom: 10px;
       cursor: pointer;
       transition: all 0.3s;
-      
+
       &:hover {
         border-color: #409eff;
         background-color: #f0f9ff;
       }
-      
+
       &.node-selected {
         border-color: #409eff;
         background-color: #ecf5ff;
       }
-      
+
       .node-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
-      
+
       .node-info {
         .info-item {
           display: flex;
@@ -452,11 +457,11 @@ onMounted(() => {
           align-items: center;
           margin-bottom: 8px;
           font-size: 14px;
-          
+
           .label {
             color: #909399;
           }
-          
+
           .value {
             font-weight: 500;
           }

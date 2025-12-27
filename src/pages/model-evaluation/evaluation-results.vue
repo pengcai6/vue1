@@ -9,9 +9,7 @@
     <el-card class="mt-4">
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-bold">测评结果总览</h3>
-        <el-button type="primary" @click="downloadResults">
-          下载结果
-        </el-button>
+        <el-button type="primary" @click="downloadResults"> 下载结果 </el-button>
       </div>
 
       <el-table :data="overviewData" border>
@@ -76,7 +74,26 @@ function getScoreColor(score: number) {
 }
 
 function downloadResults() {
-  ElMessage.success('结果下载中...')
+  const content = JSON.stringify(
+    {
+      overview: overviewData.value,
+      details: detailData.value,
+      exportTime: new Date().toLocaleString(),
+    },
+    null,
+    2,
+  )
+
+  const blob = new Blob([content], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `evaluation-results-${Date.now()}.json`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+  ElMessage.success('结果下载成功')
 }
 </script>
 

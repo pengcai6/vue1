@@ -14,7 +14,12 @@
       <!-- 筛选栏 -->
       <el-form :inline="true" class="search-form">
         <el-form-item label="资源类型">
-          <el-select v-model="searchForm.resourceType" placeholder="请选择资源类型" clearable style="width: 150px">
+          <el-select
+            v-model="searchForm.resourceType"
+            placeholder="请选择资源类型"
+            clearable
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
             <el-option label="模型" value="model" />
             <el-option label="数据集" value="dataset" />
@@ -23,7 +28,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="授权对象">
-          <el-select v-model="searchForm.granteeType" placeholder="请选择授权对象" clearable style="width: 150px">
+          <el-select
+            v-model="searchForm.granteeType"
+            placeholder="请选择授权对象"
+            clearable
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
             <el-option label="用户" value="user" />
             <el-option label="角色" value="role" />
@@ -31,7 +41,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="权限级别">
-          <el-select v-model="searchForm.permission" placeholder="请选择权限级别" clearable style="width: 150px">
+          <el-select
+            v-model="searchForm.permission"
+            placeholder="请选择权限级别"
+            clearable
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
             <el-option label="所有者" value="owner" />
             <el-option label="读写" value="read-write" />
@@ -103,7 +118,11 @@
     >
       <el-form :model="formData" :rules="formRules" ref="formRef" label-width="120px">
         <el-form-item label="资源类型" prop="resourceType">
-          <el-select v-model="formData.resourceType" placeholder="请选择资源类型" @change="handleResourceTypeChange">
+          <el-select
+            v-model="formData.resourceType"
+            placeholder="请选择资源类型"
+            @change="handleResourceTypeChange"
+          >
             <el-option label="模型" value="model" />
             <el-option label="数据集" value="dataset" />
             <el-option label="GPU资源" value="gpu" />
@@ -121,7 +140,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="授权对象类型" prop="granteeType">
-          <el-select v-model="formData.granteeType" placeholder="请选择授权对象类型" @change="handleGranteeTypeChange">
+          <el-select
+            v-model="formData.granteeType"
+            placeholder="请选择授权对象类型"
+            @change="handleGranteeTypeChange"
+          >
             <el-option label="用户" value="user" />
             <el-option label="角色" value="role" />
             <el-option label="组织" value="organization" />
@@ -157,7 +180,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { getStorage, setStorage } from '@/utils/storage'
 
 interface Permission {
   id: string
@@ -327,18 +349,11 @@ const initMockData = () => {
   ]
 
   permissions.value = mockPermissions
-  setStorage(STORAGE_KEY, mockPermissions)
 }
 
 // 加载数据
 const loadData = () => {
-  const savedPermissions = getStorage(STORAGE_KEY)
-
-  if (savedPermissions && Array.isArray(savedPermissions) && savedPermissions.length > 0) {
-    permissions.value = savedPermissions
-  } else {
-    initMockData()
-  }
+  initMockData()
 }
 
 // 过滤后的权限列表
@@ -414,7 +429,7 @@ const handleDelete = (row: Permission) => {
     const index = permissions.value.findIndex((p) => p.id === row.id)
     if (index > -1) {
       permissions.value.splice(index, 1)
-      setStorage(STORAGE_KEY, permissions.value)
+
       ElMessage.success('删除成功')
     }
   })
@@ -459,7 +474,6 @@ const handleSubmit = async () => {
     }
   }
 
-  setStorage(STORAGE_KEY, permissions.value)
   dialogVisible.value = false
 }
 

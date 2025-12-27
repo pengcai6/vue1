@@ -1,5 +1,5 @@
 <template>
-  <div class="task-detail-page">
+  <div class="task-detail-page p-5">
     <el-page-header @back="goBack">
       <template #content>
         <span class="text-2xl font-bold">{{ task?.taskName }}</span>
@@ -11,25 +11,46 @@
         <!-- 概览信息 -->
         <el-tab-pane label="概览信息" name="overview">
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="任务名称">{{ task.taskName }}</el-descriptions-item>
+            <el-descriptions-item label="任务名称">
+              {{ task.taskName }}
+            </el-descriptions-item>
             <el-descriptions-item label="任务状态">
               <el-tag :type="getStatusType(task.status)">
                 {{ getStatusText(task.status) }}
               </el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="基座模型">{{ task.baseModel }}</el-descriptions-item>
-            <el-descriptions-item label="数据集">{{ task.dataset }}</el-descriptions-item>
-            <el-descriptions-item label="Learning Rate">{{ task.learningRate }}</el-descriptions-item>
-            <el-descriptions-item label="Epochs">{{ task.epochs }}</el-descriptions-item>
-            <el-descriptions-item label="Batch Size">{{ task.batchSize }}</el-descriptions-item>
-            <el-descriptions-item label="LoRA Rank">{{ task.loraRank }}</el-descriptions-item>
-            <el-descriptions-item label="创建时间" :span="2">{{ task.createTime }}</el-descriptions-item>
-            <el-descriptions-item label="任务描述" :span="2">{{ task.description }}</el-descriptions-item>
+            <el-descriptions-item label="基座模型">
+              {{ task.baseModel }}
+            </el-descriptions-item>
+            <el-descriptions-item label="数据集">
+              {{ task.dataset }}
+            </el-descriptions-item>
+            <el-descriptions-item label="Learning Rate">
+              {{ task.learningRate }}
+            </el-descriptions-item>
+            <el-descriptions-item label="Epochs">
+              {{ task.epochs }}
+            </el-descriptions-item>
+            <el-descriptions-item label="Batch Size">
+              {{ task.batchSize }}
+            </el-descriptions-item>
+            <el-descriptions-item label="LoRA Rank">
+              {{ task.loraRank }}
+            </el-descriptions-item>
+            <el-descriptions-item label="创建时间" :span="2">
+              {{ task.createTime }}
+            </el-descriptions-item>
+            <el-descriptions-item label="任务描述" :span="2">
+              {{ task.description }}
+            </el-descriptions-item>
           </el-descriptions>
 
           <div v-if="task.status === 'running'" class="mt-4">
             <h3 class="font-bold mb-2">训练进度</h3>
-            <el-progress :percentage="task.progress" :status="task.progress === 100 ? 'success' : ''" />
+            <el-progress
+              :percentage="task.progress"
+              :status="task.progress === 100 ? 'success' : ''"
+            />
           </div>
         </el-tab-pane>
 
@@ -61,22 +82,22 @@
         <el-tab-pane label="模型产出" name="output">
           <div v-if="task.status === 'completed'">
             <el-descriptions :column="2" border>
-              <el-descriptions-item label="产出模型">{{ task.taskName }}-lora</el-descriptions-item>
-              <el-descriptions-item label="模型大小">256 MB</el-descriptions-item>
-              <el-descriptions-item label="保存路径">/models/{{ task.taskName }}/</el-descriptions-item>
-              <el-descriptions-item label="产出时间">{{ task.createTime }}</el-descriptions-item>
+              <el-descriptions-item label="产出模型">
+                {{ task.taskName }}-lora
+              </el-descriptions-item>
+              <el-descriptions-item label="模型大小"> 256 MB </el-descriptions-item>
+              <el-descriptions-item label="保存路径">
+                /models/{{ task.taskName }}/
+              </el-descriptions-item>
+              <el-descriptions-item label="产出时间">
+                {{ task.createTime }}
+              </el-descriptions-item>
             </el-descriptions>
 
             <div class="mt-4 flex gap-3">
-              <el-button type="primary" @click="startEvaluation">
-                发起评测
-              </el-button>
-              <el-button @click="tryModel">
-                立即体验
-              </el-button>
-              <el-button>
-                下载模型
-              </el-button>
+              <el-button type="primary" @click="startEvaluation"> 发起评测 </el-button>
+              <el-button @click="tryModel"> 立即体验 </el-button>
+              <el-button @click="downloadModel"> 下载模型 </el-button>
             </div>
           </div>
           <el-empty v-else description="任务完成后可查看模型产出" />
@@ -90,7 +111,6 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 const router = useRouter()
 const task = ref<any>(null)
@@ -116,8 +136,8 @@ const logs = ref([
   { time: '14:33:30', content: '[INFO] 训练完成，保存模型...' },
 ])
 
-function getStatusType(status: string) {
-  const map: Record<string, string> = {
+function getStatusType(status: string): '' | 'success' | 'warning' | 'danger' | 'info' {
+  const map: Record<string, '' | 'success' | 'warning' | 'danger' | 'info'> = {
     pending: 'info',
     running: 'warning',
     completed: 'success',
@@ -126,7 +146,7 @@ function getStatusType(status: string) {
   return map[status] || 'info'
 }
 
-function getStatusText(status: string) {
+function getStatusText(status: string): string {
   const map: Record<string, string> = {
     pending: '等待中',
     running: '运行中',
@@ -141,25 +161,63 @@ function goBack() {
 }
 
 function startEvaluation() {
-  setStorage('eval-model', task.value)
+  localStorage.setItem('eval-model', JSON.stringify(task.value))
   router.push('/model-evaluation/create-task')
   ElMessage.success('跳转到模型评测页面')
 }
 
 function tryModel() {
+  const modelData = {
+    id: task.value.id,
+    name: `${task.value.taskName}-lora`,
+    category: 'text',
+    vendor: 'Self-Finetuned',
+    version: 'v1.0',
+    parameters: 'Unknown',
+    contextLength: 'Unknown',
+    description: `微调任务 ${task.value.taskName} 产出的模型`,
+    isDeployed: true,
+    capabilities: ['对话', '文本生成'],
+    useCases: ['微调验证'],
+  }
+  localStorage.setItem('current-model', JSON.stringify(modelData))
   router.push('/model-marketplace/playground')
   ElMessage.success('跳转到在线体验页面')
 }
 
+function downloadModel() {
+  const content = JSON.stringify(
+    {
+      modelName: task.value?.taskName,
+      baseModel: task.value?.baseModel,
+      loraRank: task.value?.loraRank,
+      createTime: task.value?.createTime,
+      weights: 'fake-model-weights-data',
+    },
+    null,
+    2,
+  )
+
+  const blob = new Blob([content], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${task.value?.taskName}-lora.json`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+  ElMessage.success('模型下载成功')
+}
+
 onMounted(() => {
-  task.value = getStorage('current-finetune-task', null)
+  const stored = localStorage.getItem('current-finetune-task')
+  task.value = stored ? JSON.parse(stored) : null
 })
 </script>
 
 <style scoped lang="scss">
 .task-detail-page {
-  padding: 20px;
-
   .log-viewer {
     background: #000;
     color: #0f0;

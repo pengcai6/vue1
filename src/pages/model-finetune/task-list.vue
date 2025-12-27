@@ -1,20 +1,21 @@
 <template>
-  <div class="task-list-page">
+  <div class="task-list-page p-5">
     <el-card class="header-card">
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold">
-          微调任务列表
-        </h2>
-        <el-button type="primary" @click="createNew">
-          创建微调任务
-        </el-button>
+        <h2 class="text-2xl font-bold">微调任务列表</h2>
+        <el-button type="primary" @click="createNew"> 创建微调任务 </el-button>
       </div>
     </el-card>
 
     <el-card class="mt-4">
       <el-table :data="tasks" stripe>
         <el-table-column prop="taskName" label="任务名称" width="200" />
-        <el-table-column prop="description" label="任务描述" min-width="200" show-overflow-tooltip />
+        <el-table-column
+          prop="description"
+          label="任务描述"
+          min-width="200"
+          show-overflow-tooltip
+        />
         <el-table-column prop="baseModel" label="基座模型" width="150" />
         <el-table-column prop="dataset" label="数据集" width="180" />
         <el-table-column label="状态" width="120" align="center">
@@ -37,36 +38,17 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="250" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewDetail(row)">
-              详情
-            </el-button>
-            <el-button
-              v-if="row.status === 'pending'"
-              link
-              type="success"
-              @click="startTask(row)"
-            >
+            <el-button link type="primary" @click="viewDetail(row)"> 详情 </el-button>
+            <el-button v-if="row.status === 'pending'" link type="success" @click="startTask(row)">
               启动
             </el-button>
-            <el-button
-              v-if="row.status === 'running'"
-              link
-              type="warning"
-              @click="stopTask(row)"
-            >
+            <el-button v-if="row.status === 'running'" link type="warning" @click="stopTask(row)">
               停止
             </el-button>
-            <el-button link @click="copyTask(row)">
-              复制
-            </el-button>
-            <el-popconfirm
-              title="确定要删除此任务吗？"
-              @confirm="deleteTask(row.id)"
-            >
+            <el-button link @click="copyTask(row)"> 复制 </el-button>
+            <el-popconfirm title="确定要删除此任务吗？" @confirm="deleteTask(row.id)">
               <template #reference>
-                <el-button link type="danger">
-                  删除
-                </el-button>
+                <el-button link type="danger"> 删除 </el-button>
               </template>
             </el-popconfirm>
           </template>
@@ -80,7 +62,6 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 const router = useRouter()
 const tasks = ref<any[]>([])
@@ -112,11 +93,23 @@ function initMockData() {
       learningRate: 0.0002,
       epochs: 5,
     },
+    {
+      id: '3',
+      taskName: 'qwen-code-generation',
+      description: '代码生成微调任务',
+      baseModel: 'qwen-7b',
+      dataset: 'code-alpaca-v1',
+      status: 'completed',
+      progress: 100,
+      createTime: '2024-01-14 09:00:00',
+      learningRate: 0.0003,
+      epochs: 4,
+    },
   ]
 }
 
-function getStatusType(status: string) {
-  const map: Record<string, string> = {
+function getStatusType(status: string): '' | 'success' | 'warning' | 'danger' | 'info' {
+  const map: Record<string, '' | 'success' | 'warning' | 'danger' | 'info'> = {
     pending: 'info',
     running: 'warning',
     completed: 'success',
@@ -125,7 +118,7 @@ function getStatusType(status: string) {
   return map[status] || 'info'
 }
 
-function getStatusText(status: string) {
+function getStatusText(status: string): string {
   const map: Record<string, string> = {
     pending: '等待中',
     running: '运行中',
@@ -140,7 +133,7 @@ function createNew() {
 }
 
 function viewDetail(task: any) {
-  setStorage('current-finetune-task', task)
+  localStorage.setItem('current-finetune-task', JSON.stringify(task))
   router.push('/model-finetune/task-detail')
 }
 
@@ -172,18 +165,18 @@ function copyTask(task: any) {
 }
 
 function deleteTask(id: string) {
-  tasks.value = tasks.value.filter(t => t.id !== id)
+  tasks.value = tasks.value.filter((t) => t.id !== id)
   saveToStorage()
   ElMessage.success('任务已删除')
 }
 
 function saveToStorage() {
-  setStorage('finetune-tasks', tasks.value)
+  localStorage.setItem('finetune-tasks', JSON.stringify(tasks.value))
 }
 
 function loadFromStorage() {
-  const stored = getStorage('finetune-tasks', [])
-  tasks.value = stored.length > 0 ? stored : initMockData()
+  const stored = localStorage.getItem('finetune-tasks')
+  tasks.value = stored ? JSON.parse(stored) : initMockData()
 }
 
 // 模拟进度更新
@@ -212,9 +205,3 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<style scoped lang="scss">
-.task-list-page {
-  padding: 20px;
-}
-</style>

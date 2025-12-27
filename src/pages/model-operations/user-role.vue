@@ -17,16 +17,36 @@
           <!-- 搜索栏 -->
           <el-form :inline="true" class="search-form">
             <el-form-item label="用户名">
-              <el-input v-model="userSearchForm.userName" placeholder="请输入用户名" clearable style="width: 150px" />
+              <el-input
+                v-model="userSearchForm.userName"
+                placeholder="请输入用户名"
+                clearable
+                style="width: 150px"
+              />
             </el-form-item>
             <el-form-item label="角色">
-              <el-select v-model="userSearchForm.roleId" placeholder="请选择角色" clearable style="width: 150px">
+              <el-select
+                v-model="userSearchForm.roleId"
+                placeholder="请选择角色"
+                clearable
+                style="width: 150px"
+              >
                 <el-option label="全部" value="" />
-                <el-option v-for="role in roles" :key="role.id" :label="role.name" :value="role.id" />
+                <el-option
+                  v-for="role in roles"
+                  :key="role.id"
+                  :label="role.name"
+                  :value="role.id"
+                />
               </el-select>
             </el-form-item>
             <el-form-item label="状态">
-              <el-select v-model="userSearchForm.status" placeholder="请选择状态" clearable style="width: 120px">
+              <el-select
+                v-model="userSearchForm.status"
+                placeholder="请选择状态"
+                clearable
+                style="width: 120px"
+              >
                 <el-option label="全部" value="" />
                 <el-option label="正常" value="active" />
                 <el-option label="已禁用" value="disabled" />
@@ -57,8 +77,12 @@
             </el-table-column>
             <el-table-column label="操作" width="200" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEditUser(row)">编辑</el-button>
-                <el-button link type="primary" size="small" @click="handleAssignRole(row)">分配角色</el-button>
+                <el-button link type="primary" size="small" @click="handleEditUser(row)"
+                  >编辑</el-button
+                >
+                <el-button link type="primary" size="small" @click="handleAssignRole(row)"
+                  >分配角色</el-button
+                >
                 <el-button
                   link
                   :type="row.status === 'active' ? 'warning' : 'success'"
@@ -102,12 +126,21 @@
           <!-- 角色列表 -->
           <el-table :data="roles" border style="width: 100%">
             <el-table-column prop="name" label="角色名称" width="140" />
-            <el-table-column prop="description" label="描述" min-width="150" show-overflow-tooltip />
+            <el-table-column
+              prop="description"
+              label="描述"
+              min-width="150"
+              show-overflow-tooltip
+            />
             <el-table-column prop="userCount" label="用户数" width="80" align="center" />
             <el-table-column label="操作" width="160">
               <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEditRole(row)">编辑</el-button>
-                <el-button link type="primary" size="small" @click="handleViewPermissions(row)">权限</el-button>
+                <el-button link type="primary" size="small" @click="handleEditRole(row)"
+                  >编辑</el-button
+                >
+                <el-button link type="primary" size="small" @click="handleViewPermissions(row)"
+                  >权限</el-button
+                >
                 <el-button
                   link
                   type="danger"
@@ -139,7 +172,9 @@
             @check="handlePermissionCheck"
           />
           <div style="margin-top: 16px; text-align: right">
-            <el-button type="primary" size="small" @click="handleSavePermissions">保存权限</el-button>
+            <el-button type="primary" size="small" @click="handleSavePermissions"
+              >保存权限</el-button
+            >
           </div>
         </el-card>
       </el-col>
@@ -154,10 +189,14 @@
     >
       <el-form :model="userFormData" :rules="userFormRules" ref="userFormRef" label-width="80px">
         <el-form-item label="用户名" prop="userName">
-          <el-input v-model="userFormData.userName" placeholder="请输入用户名" />
+          <el-input
+            v-model="userFormData.userName"
+            placeholder="请输入用户名"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userFormData.email" placeholder="请输入邮箱" />
+          <el-input v-model="userFormData.email" placeholder="请输入邮箱" style="width: 100%" />
         </el-form-item>
         <el-form-item label="角色" prop="roleId">
           <el-select v-model="userFormData.roleId" placeholder="请选择角色" style="width: 100%">
@@ -186,7 +225,7 @@
     >
       <el-form :model="roleFormData" :rules="roleFormRules" ref="roleFormRef" label-width="80px">
         <el-form-item label="角色名称" prop="name">
-          <el-input v-model="roleFormData.name" placeholder="请输入角色名称" />
+          <el-input v-model="roleFormData.name" placeholder="请输入角色名称" style="width: 100%" />
         </el-form-item>
         <el-form-item label="角色描述" prop="description">
           <el-input
@@ -194,12 +233,38 @@
             type="textarea"
             :rows="3"
             placeholder="请输入角色描述"
+            style="width: 100%"
           />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="roleDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleSubmitRole">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 分配角色对话框 -->
+    <el-dialog v-model="assignRoleDialogVisible" title="分配角色" width="400px">
+      <el-form :model="assignRoleForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input v-model="assignRoleForm.userName" disabled style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="当前角色">
+          <el-input v-model="assignRoleForm.currentRoleName" disabled style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="新角色">
+          <el-select
+            v-model="assignRoleForm.newRoleId"
+            placeholder="请选择新角色"
+            style="width: 100%"
+          >
+            <el-option v-for="role in roles" :key="role.id" :label="role.name" :value="role.id" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="assignRoleDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmitAssignRole">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -209,7 +274,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { getStorage, setStorage } from '@/utils/storage'
 
 interface User {
   userId: string
@@ -283,7 +347,15 @@ const roleFormRules = {
   description: [{ required: true, message: '请输入角色描述', trigger: 'blur' }],
 }
 
-// 权限管理
+// 分配角色相关
+const assignRoleDialogVisible = ref(false)
+const assignRoleForm = ref({
+  userId: '',
+  userName: '',
+  currentRoleName: '',
+  newRoleId: '',
+})
+
 const selectedRole = ref<Role | null>(null)
 const permissionTreeRef = ref()
 const rolePermissions = ref<Record<string, string[]>>({})
@@ -475,25 +547,11 @@ const initMockData = () => {
   roles.value = mockRoles
   users.value = mockUsers
   rolePermissions.value = mockPermissions
-
-  setStorage(ROLES_STORAGE_KEY, mockRoles)
-  setStorage(USERS_STORAGE_KEY, mockUsers)
-  setStorage(ROLE_PERMISSIONS_KEY, mockPermissions)
 }
 
 // 加载数据
 const loadData = () => {
-  const savedRoles = getStorage(ROLES_STORAGE_KEY)
-  const savedUsers = getStorage(USERS_STORAGE_KEY)
-  const savedPermissions = getStorage(ROLE_PERMISSIONS_KEY)
-
-  if (savedRoles && Array.isArray(savedRoles) && savedRoles.length > 0) {
-    roles.value = savedRoles
-    users.value = savedUsers || []
-    rolePermissions.value = savedPermissions || {}
-  } else {
-    initMockData()
-  }
+  initMockData()
 }
 
 // 过滤用户
@@ -502,7 +560,7 @@ const filteredUsers = computed(() => {
 
   if (userSearchForm.value.userName) {
     result = result.filter((user) =>
-      user.userName.toLowerCase().includes(userSearchForm.value.userName.toLowerCase())
+      user.userName.toLowerCase().includes(userSearchForm.value.userName.toLowerCase()),
     )
   }
 
@@ -556,7 +614,28 @@ const handleEditUser = (row: User) => {
 }
 
 const handleAssignRole = (row: User) => {
-  ElMessage.info('分配角色功能（演示模式）')
+  assignRoleForm.value = {
+    userId: row.userId,
+    userName: row.userName,
+    currentRoleName: row.roleName,
+    newRoleId: row.roleId,
+  }
+  assignRoleDialogVisible.value = true
+}
+
+const handleSubmitAssignRole = () => {
+  const userIndex = users.value.findIndex((u) => u.userId === assignRoleForm.value.userId)
+  if (userIndex > -1) {
+    const newRole = roles.value.find((r) => r.id === assignRoleForm.value.newRoleId)
+    if (newRole) {
+      // 更新用户角色
+      users.value[userIndex].roleId = newRole.id
+      users.value[userIndex].roleName = newRole.name
+
+      ElMessage.success('角色分配成功')
+      assignRoleDialogVisible.value = false
+    }
+  }
 }
 
 const handleToggleUserStatus = (row: User) => {
@@ -567,7 +646,7 @@ const handleToggleUserStatus = (row: User) => {
     type: 'warning',
   }).then(() => {
     row.status = row.status === 'active' ? 'disabled' : 'active'
-    setStorage(USERS_STORAGE_KEY, users.value)
+
     ElMessage.success(`${action}成功`)
   })
 }
@@ -589,7 +668,6 @@ const handleSubmitUser = async () => {
     // 更新角色用户数
     if (role) {
       role.userCount++
-      setStorage(ROLES_STORAGE_KEY, roles.value)
     }
 
     ElMessage.success('添加用户成功')
@@ -608,14 +686,12 @@ const handleSubmitUser = async () => {
         const oldRole = roles.value.find((r) => r.id === oldRoleId)
         if (oldRole) oldRole.userCount--
         if (role) role.userCount++
-        setStorage(ROLES_STORAGE_KEY, roles.value)
       }
 
       ElMessage.success('更新用户成功')
     }
   }
 
-  setStorage(USERS_STORAGE_KEY, users.value)
   userDialogVisible.value = false
 }
 
@@ -660,7 +736,7 @@ const handleDeleteRole = (row: Role) => {
     const index = roles.value.findIndex((r) => r.id === row.id)
     if (index > -1) {
       roles.value.splice(index, 1)
-      setStorage(ROLES_STORAGE_KEY, roles.value)
+
       ElMessage.success('删除成功')
     }
   })
@@ -687,8 +763,6 @@ const handleSubmitRole = async () => {
     }
   }
 
-  setStorage(ROLES_STORAGE_KEY, roles.value)
-  setStorage(ROLE_PERMISSIONS_KEY, rolePermissions.value)
   roleDialogVisible.value = false
 }
 
@@ -715,7 +789,6 @@ const handleSavePermissions = () => {
 
   const checkedKeys = permissionTreeRef.value.getCheckedKeys()
   rolePermissions.value[selectedRole.value.id] = checkedKeys
-  setStorage(ROLE_PERMISSIONS_KEY, rolePermissions.value)
   ElMessage.success('权限保存成功')
 }
 

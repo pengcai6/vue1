@@ -14,10 +14,20 @@
       <!-- 搜索栏 -->
       <el-form :inline="true" class="search-form">
         <el-form-item label="组织名称">
-          <el-input v-model="searchForm.name" placeholder="请输入组织名称" clearable style="width: 200px" />
+          <el-input
+            v-model="searchForm.name"
+            placeholder="请输入组织名称"
+            clearable
+            style="width: 200px"
+          />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 150px">
+          <el-select
+            v-model="searchForm.status"
+            placeholder="请选择状态"
+            clearable
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
             <el-option label="正常" value="normal" />
             <el-option label="已停用" value="disabled" />
@@ -47,7 +57,9 @@
         <el-table-column label="操作" width="250" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="primary" size="small" @click="handleViewMembers(row)">成员管理</el-button>
+            <el-button link type="primary" size="small" @click="handleViewMembers(row)"
+              >成员管理</el-button
+            >
             <el-button
               link
               :type="row.status === 'normal' ? 'warning' : 'success'"
@@ -84,7 +96,7 @@
     >
       <el-form :model="formData" :rules="formRules" ref="formRef" label-width="100px">
         <el-form-item label="组织名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入组织名称" />
+          <el-input v-model="formData.name" placeholder="请输入组织名称" style="width: 100%" />
         </el-form-item>
         <el-form-item label="组织描述" prop="description">
           <el-input
@@ -92,10 +104,11 @@
             type="textarea"
             :rows="3"
             placeholder="请输入组织描述"
+            style="width: 100%"
           />
         </el-form-item>
         <el-form-item label="管理员" prop="admin">
-          <el-input v-model="formData.admin" placeholder="请输入管理员名称" />
+          <el-input v-model="formData.admin" placeholder="请输入管理员名称" style="width: 100%" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="formData.status">
@@ -142,6 +155,32 @@
         </el-table>
       </div>
     </el-dialog>
+
+    <!-- 添加成员对话框 -->
+    <el-dialog v-model="addMemberDialogVisible" title="添加成员" width="500px">
+      <el-form :model="addMemberForm" label-width="80px">
+        <el-form-item label="用户名">
+          <el-input
+            v-model="addMemberForm.userName"
+            placeholder="请输入用户名"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="addMemberForm.email" placeholder="请输入邮箱" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="addMemberForm.role" placeholder="请选择角色" style="width: 100%">
+            <el-option label="管理员" value="admin" />
+            <el-option label="成员" value="member" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="addMemberDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAddMember">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -149,7 +188,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { getStorage, setStorage } from '@/utils/storage'
 
 interface Organization {
   id: string
@@ -209,6 +247,14 @@ const memberDialogVisible = ref(false)
 const currentOrgId = ref('')
 const organizationMembers = ref<Record<string, Member[]>>({})
 const currentMembers = computed(() => organizationMembers.value[currentOrgId.value] || [])
+
+// 添加成员相关
+const addMemberDialogVisible = ref(false)
+const addMemberForm = ref({
+  userName: '',
+  email: '',
+  role: 'member' as 'admin' | 'member',
+})
 
 // 初始化模拟数据
 const initMockData = () => {
@@ -304,24 +350,11 @@ const initMockData = () => {
 
   organizations.value = mockOrganizations
   organizationMembers.value = mockMembers
-  setStorage(STORAGE_KEY, mockOrganizations)
-  setStorage(MEMBERS_STORAGE_KEY, mockMembers)
 }
 
 // 加载数据
 const loadData = () => {
-  const savedOrgs = getStorage(STORAGE_KEY)
-  const savedMembers = getStorage(MEMBERS_STORAGE_KEY)
-
-  if (savedOrgs && Array.isArray(savedOrgs) && savedOrgs.length > 0) {
-    organizations.value = savedOrgs
-  } else {
-    initMockData()
-  }
-
-  if (savedMembers) {
-    organizationMembers.value = savedMembers
-  }
+  initMockData()
 }
 
 // 过滤后的组织列表
@@ -330,7 +363,7 @@ const filteredOrganizations = computed(() => {
 
   if (searchForm.value.name) {
     result = result.filter((org) =>
-      org.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
+      org.name.toLowerCase().includes(searchForm.value.name.toLowerCase()),
     )
   }
 
@@ -377,7 +410,6 @@ const handleToggleStatus = (row: Organization) => {
     type: 'warning',
   }).then(() => {
     row.status = row.status === 'normal' ? 'disabled' : 'normal'
-    setStorage(STORAGE_KEY, organizations.value)
     ElMessage.success(`${action}成功`)
   })
 }
@@ -392,7 +424,6 @@ const handleDelete = (row: Organization) => {
     const index = organizations.value.findIndex((org) => org.id === row.id)
     if (index > -1) {
       organizations.value.splice(index, 1)
-      setStorage(STORAGE_KEY, organizations.value)
       ElMessage.success('删除成功')
     }
   })
@@ -419,7 +450,6 @@ const handleSubmit = async () => {
     }
   }
 
-  setStorage(STORAGE_KEY, organizations.value)
   dialogVisible.value = false
 }
 
@@ -443,18 +473,55 @@ const handleViewMembers = (row: Organization) => {
 
 // 添加成员
 const handleAddMember = () => {
-  ElMessage.info('添加成员功能（演示模式）')
+  addMemberForm.value = {
+    userName: '',
+    email: '',
+    role: 'member',
+  }
+  addMemberDialogVisible.value = true
+}
+
+const submitAddMember = () => {
+  if (!addMemberForm.value.userName || !addMemberForm.value.email) {
+    ElMessage.warning('请填写完整信息')
+    return
+  }
+
+  const newMember: Member = {
+    userId: `user-${Date.now()}`,
+    userName: addMemberForm.value.userName,
+    email: addMemberForm.value.email,
+    role: addMemberForm.value.role,
+    joinedAt: new Date().toLocaleString('zh-CN'),
+  }
+
+  if (!organizationMembers.value[currentOrgId.value]) {
+    organizationMembers.value[currentOrgId.value] = []
+  }
+  organizationMembers.value[currentOrgId.value].push(newMember)
+
+  // 更新成员数量
+  const org = organizations.value.find((o) => o.id === currentOrgId.value)
+  if (org) {
+    org.memberCount = organizationMembers.value[currentOrgId.value].length
+  }
+
+  ElMessage.success('添加成员成功')
+  addMemberDialogVisible.value = false
 }
 
 // 变更角色
 const handleChangeRole = (member: Member) => {
   const newRole = member.role === 'admin' ? 'member' : 'admin'
-  ElMessageBox.confirm(`确定要将"${member.userName}"的角色变更为${newRole === 'admin' ? '管理员' : '成员'}吗?`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-  }).then(() => {
+  ElMessageBox.confirm(
+    `确定要将"${member.userName}"的角色变更为${newRole === 'admin' ? '管理员' : '成员'}吗?`,
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+    },
+  ).then(() => {
     member.role = newRole
-    setStorage(MEMBERS_STORAGE_KEY, organizationMembers.value)
     ElMessage.success('角色变更成功')
   })
 }
@@ -470,15 +537,13 @@ const handleRemoveMember = (member: Member) => {
     const index = members.findIndex((m) => m.userId === member.userId)
     if (index > -1) {
       members.splice(index, 1)
-      setStorage(MEMBERS_STORAGE_KEY, organizationMembers.value)
-      
+
       // 更新成员数量
       const org = organizations.value.find((o) => o.id === currentOrgId.value)
       if (org) {
         org.memberCount = members.length
-        setStorage(STORAGE_KEY, organizations.value)
       }
-      
+
       ElMessage.success('移除成功')
     }
   })

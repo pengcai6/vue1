@@ -1,9 +1,7 @@
 <template>
-  <div class="auto-scaling-page">
+  <div class="auto-scaling-page p-5">
     <el-card class="header-card">
-      <h2 class="text-2xl font-bold mb-2">
-        基于推理指标的弹性扩缩容
-      </h2>
+      <h2 class="text-2xl font-bold mb-2">基于推理指标的弹性扩缩容</h2>
       <p class="text-gray-500">
         支持根据GPU利用率、QPS、TPS、TTFT指标进行弹性扩缩容，以应对高峰流量
       </p>
@@ -16,9 +14,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <span class="font-bold">扩缩容规则</span>
-              <el-button type="primary" @click="showCreateDialog = true">
-                创建规则
-              </el-button>
+              <el-button type="primary" @click="showCreateDialog = true"> 创建规则 </el-button>
             </div>
           </template>
 
@@ -31,15 +27,9 @@
                   <div v-if="row.metrics.gpuUtilization">
                     GPU利用率 > {{ row.metrics.gpuUtilization }}%
                   </div>
-                  <div v-if="row.metrics.qps">
-                    QPS > {{ row.metrics.qps }}
-                  </div>
-                  <div v-if="row.metrics.tps">
-                    TPS > {{ row.metrics.tps }}
-                  </div>
-                  <div v-if="row.metrics.ttft">
-                    TTFT > {{ row.metrics.ttft }}ms
-                  </div>
+                  <div v-if="row.metrics.qps">QPS > {{ row.metrics.qps }}</div>
+                  <div v-if="row.metrics.tps">TPS > {{ row.metrics.tps }}</div>
+                  <div v-if="row.metrics.ttft">TTFT > {{ row.metrics.ttft }}ms</div>
                 </div>
               </template>
             </el-table-column>
@@ -50,35 +40,21 @@
             </el-table-column>
             <el-table-column label="缩容到0" width="100" align="center">
               <template #default="{ row }">
-                <el-tag v-if="row.scaleToZero" type="success" size="small">
-                  支持
-                </el-tag>
-                <el-tag v-else type="info" size="small">
-                  不支持
-                </el-tag>
+                <el-tag v-if="row.scaleToZero" type="success" size="small"> 支持 </el-tag>
+                <el-tag v-else type="info" size="small"> 不支持 </el-tag>
               </template>
             </el-table-column>
             <el-table-column label="状态" width="100" align="center">
               <template #default="{ row }">
-                <el-switch
-                  v-model="row.enabled"
-                  @change="toggleRule(row)"
-                />
+                <el-switch v-model="row.enabled" @change="toggleRule(row)" />
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" @click="editRule(row)">
-                  编辑
-                </el-button>
-                <el-popconfirm
-                  title="确定要删除此规则吗？"
-                  @confirm="deleteRule(row.id)"
-                >
+                <el-button link type="primary" @click="editRule(row)"> 编辑 </el-button>
+                <el-popconfirm title="确定要删除此规则吗？" @confirm="deleteRule(row.id)">
                   <template #reference>
-                    <el-button link type="danger">
-                      删除
-                    </el-button>
+                    <el-button link type="danger">删除</el-button>
                   </template>
                 </el-popconfirm>
               </template>
@@ -104,9 +80,7 @@
               <div class="text-sm text-gray-600">
                 {{ event.action }}：{{ event.fromReplicas }} → {{ event.toReplicas }} 副本
               </div>
-              <div class="text-sm text-gray-500">
-                触发原因：{{ event.reason }}
-              </div>
+              <div class="text-sm text-gray-500">触发原因：{{ event.reason }}</div>
             </el-timeline-item>
           </el-timeline>
         </el-card>
@@ -239,7 +213,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 interface ScalingRule {
   id: string
@@ -379,11 +352,9 @@ function simulateMetrics() {
   }, 3000)
 }
 
-function getMetricColor(value: number) {
-  if (value < 50)
-    return '#67C23A'
-  if (value < 80)
-    return '#E6A23C'
+function getMetricColor(value: number): string {
+  if (value < 50) return '#67C23A'
+  if (value < 80) return '#E6A23C'
   return '#F56C6C'
 }
 
@@ -395,14 +366,13 @@ function editRule(rule: ScalingRule) {
 
 function saveRule() {
   if (isEditing.value && ruleForm.value.id) {
-    const index = scalingRules.value.findIndex(r => r.id === ruleForm.value.id)
+    const index = scalingRules.value.findIndex((r) => r.id === ruleForm.value.id)
     if (index !== -1) {
-      scalingRules.value[index] = { ...ruleForm.value as ScalingRule }
+      scalingRules.value[index] = { ...(ruleForm.value as ScalingRule) }
     }
-  }
-  else {
+  } else {
     const newRule: ScalingRule = {
-      ...ruleForm.value as ScalingRule,
+      ...(ruleForm.value as ScalingRule),
       id: Date.now().toString(),
     }
     scalingRules.value.push(newRule)
@@ -415,7 +385,7 @@ function saveRule() {
 }
 
 function deleteRule(id: string) {
-  scalingRules.value = scalingRules.value.filter(r => r.id !== id)
+  scalingRules.value = scalingRules.value.filter((r) => r.id !== id)
   saveToStorage()
   ElMessage.success('规则删除成功')
 }
@@ -445,23 +415,27 @@ function resetForm() {
 }
 
 function saveToStorage() {
-  setStorage('scaling-rules', scalingRules.value)
-  setStorage('scaling-events', scalingEvents.value)
+  localStorage.setItem('scaling-rules', JSON.stringify(scalingRules.value))
+  localStorage.setItem('scaling-events', JSON.stringify(scalingEvents.value))
 }
 
 function loadFromStorage() {
-  const storedRules = getStorage<ScalingRule[]>('scaling-rules', [])
-  const storedEvents = getStorage<ScalingEvent[]>('scaling-events', [])
+  const storedRules = localStorage.getItem('scaling-rules')
+  const storedEvents = localStorage.getItem('scaling-events')
 
-  if (storedRules.length === 0 || storedEvents.length === 0) {
+  if (
+    !storedRules ||
+    !storedEvents ||
+    JSON.parse(storedRules).length === 0 ||
+    JSON.parse(storedEvents).length === 0
+  ) {
     const mockData = initMockData()
     scalingRules.value = mockData.rules
     scalingEvents.value = mockData.events
     saveToStorage()
-  }
-  else {
-    scalingRules.value = storedRules
-    scalingEvents.value = storedEvents
+  } else {
+    scalingRules.value = JSON.parse(storedRules)
+    scalingEvents.value = JSON.parse(storedEvents)
   }
 }
 
@@ -479,8 +453,6 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .auto-scaling-page {
-  padding: 20px;
-
   .metrics-panel {
     .metric-item {
       padding: 15px;

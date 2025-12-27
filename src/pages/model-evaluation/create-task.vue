@@ -1,15 +1,15 @@
 <template>
-  <div class="create-evaluation-task-page">
+  <div class="create-evaluation-task-page p-5">
     <el-card>
       <h2 class="text-2xl font-bold mb-4">创建测评任务</h2>
 
       <el-form :model="form" label-width="150px">
         <el-form-item label="任务名称" required>
-          <el-input v-model="form.taskName" placeholder="请输入任务名称" />
+          <el-input v-model="form.taskName" placeholder="请输入任务名称" style="width: 100%" />
         </el-form-item>
 
         <el-form-item label="任务描述">
-          <el-input v-model="form.description" type="textarea" :rows="3" />
+          <el-input v-model="form.description" type="textarea" :rows="3" style="width: 100%" />
         </el-form-item>
 
         <el-form-item label="测评模型" required>
@@ -21,7 +21,12 @@
         </el-form-item>
 
         <el-form-item label="测评数据集" required>
-          <el-select v-model="form.datasets" multiple placeholder="选择测评数据集" style="width: 100%">
+          <el-select
+            v-model="form.datasets"
+            multiple
+            placeholder="选择测评数据集"
+            style="width: 100%"
+          >
             <el-option label="MMLU" value="mmlu" />
             <el-option label="C-Eval" value="c-eval" />
             <el-option label="GSM8K" value="gsm8k" />
@@ -52,15 +57,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 const router = useRouter()
 const form = ref({
   taskName: '',
   description: '',
-  models: [],
-  datasets: [],
-  metrics: ['accuracy'],
+  models: [] as string[],
+  datasets: [] as string[],
+  metrics: ['accuracy'] as string[],
 })
 
 function createTask() {
@@ -69,7 +73,8 @@ function createTask() {
     return
   }
 
-  const tasks = getStorage('evaluation-tasks', [])
+  const stored = localStorage.getItem('evaluation-tasks')
+  const tasks = stored ? JSON.parse(stored) : []
   const newTask = {
     id: Date.now().toString(),
     ...form.value,
@@ -79,15 +84,9 @@ function createTask() {
   }
 
   tasks.unshift(newTask)
-  setStorage('evaluation-tasks', tasks)
+  localStorage.setItem('evaluation-tasks', JSON.stringify(tasks))
 
   ElMessage.success('测评任务创建成功')
   router.push('/model-evaluation/task-list')
 }
 </script>
-
-<style scoped lang="scss">
-.create-evaluation-task-page {
-  padding: 20px;
-}
-</style>

@@ -14,7 +14,12 @@
       <!-- 筛选栏 -->
       <el-form :inline="true" class="search-form">
         <el-form-item label="日志类型">
-          <el-select v-model="searchForm.logType" placeholder="请选择日志类型" clearable style="width: 150px">
+          <el-select
+            v-model="searchForm.logType"
+            placeholder="请选择日志类型"
+            clearable
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
             <el-option label="登录日志" value="login" />
             <el-option label="操作日志" value="operation" />
@@ -22,7 +27,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="操作类型">
-          <el-select v-model="searchForm.actionType" placeholder="请选择操作类型" clearable style="width: 150px">
+          <el-select
+            v-model="searchForm.actionType"
+            placeholder="请选择操作类型"
+            clearable
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
             <el-option label="创建" value="create" />
             <el-option label="更新" value="update" />
@@ -31,10 +41,20 @@
           </el-select>
         </el-form-item>
         <el-form-item label="用户">
-          <el-input v-model="searchForm.userName" placeholder="请输入用户名" clearable style="width: 150px" />
+          <el-input
+            v-model="searchForm.userName"
+            placeholder="请输入用户名"
+            clearable
+            style="width: 150px"
+          />
         </el-form-item>
         <el-form-item label="IP地址">
-          <el-input v-model="searchForm.ipAddress" placeholder="请输入IP地址" clearable style="width: 150px" />
+          <el-input
+            v-model="searchForm.ipAddress"
+            placeholder="请输入IP地址"
+            clearable
+            style="width: 150px"
+          />
         </el-form-item>
         <el-form-item label="时间范围">
           <el-date-picker
@@ -71,7 +91,12 @@
         </el-table-column>
         <el-table-column prop="userName" label="用户" width="120" />
         <el-table-column prop="module" label="模块" width="120" />
-        <el-table-column prop="description" label="操作描述" min-width="250" show-overflow-tooltip />
+        <el-table-column
+          prop="description"
+          label="操作描述"
+          min-width="250"
+          show-overflow-tooltip
+        />
         <el-table-column prop="ipAddress" label="IP地址" width="140" />
         <el-table-column prop="userAgent" label="浏览器" width="150" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" width="80" align="center">
@@ -84,7 +109,9 @@
         <el-table-column prop="timestamp" label="时间" width="180" />
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleViewDetail(row)">详情</el-button>
+            <el-button link type="primary" size="small" @click="handleViewDetail(row)"
+              >详情</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -124,13 +151,19 @@
             {{ selectedLog.status === 'success' ? '成功' : '失败' }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="操作描述" :span="2">{{ selectedLog.description }}</el-descriptions-item>
+        <el-descriptions-item label="操作描述" :span="2">{{
+          selectedLog.description
+        }}</el-descriptions-item>
         <el-descriptions-item label="IP地址">{{ selectedLog.ipAddress }}</el-descriptions-item>
         <el-descriptions-item label="地理位置">{{ selectedLog.location }}</el-descriptions-item>
-        <el-descriptions-item label="浏览器" :span="2">{{ selectedLog.userAgent }}</el-descriptions-item>
+        <el-descriptions-item label="浏览器" :span="2">{{
+          selectedLog.userAgent
+        }}</el-descriptions-item>
         <el-descriptions-item label="时间戳">{{ selectedLog.timestamp }}</el-descriptions-item>
         <el-descriptions-item label="请求耗时">{{ selectedLog.duration }}ms</el-descriptions-item>
-        <el-descriptions-item label="请求路径" :span="2">{{ selectedLog.requestPath }}</el-descriptions-item>
+        <el-descriptions-item label="请求路径" :span="2">{{
+          selectedLog.requestPath
+        }}</el-descriptions-item>
         <el-descriptions-item label="请求参数" :span="2">
           <el-input
             v-model="selectedLog.requestParams"
@@ -149,7 +182,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download } from '@element-plus/icons-vue'
-import { getStorage, setStorage } from '@/utils/storage'
 
 interface AuditLog {
   id: string
@@ -333,18 +365,11 @@ const initMockData = () => {
   ]
 
   auditLogs.value = mockLogs
-  setStorage(STORAGE_KEY, mockLogs)
 }
 
 // 加载数据
 const loadData = () => {
-  const savedLogs = getStorage(STORAGE_KEY)
-
-  if (savedLogs && Array.isArray(savedLogs) && savedLogs.length > 0) {
-    auditLogs.value = savedLogs
-  } else {
-    initMockData()
-  }
+  initMockData()
 }
 
 // 过滤后的日志列表
@@ -361,7 +386,7 @@ const filteredLogs = computed(() => {
 
   if (searchForm.value.userName) {
     result = result.filter((log) =>
-      log.userName.toLowerCase().includes(searchForm.value.userName.toLowerCase())
+      log.userName.toLowerCase().includes(searchForm.value.userName.toLowerCase()),
     )
   }
 
@@ -412,7 +437,41 @@ const handleViewDetail = (row: AuditLog) => {
 
 // 导出日志
 const handleExport = () => {
-  ElMessage.success('日志导出功能（演示模式）- 已生成 CSV 文件')
+  const headers = [
+    '日志ID',
+    '日志类型',
+    '操作类型',
+    '用户',
+    '模块',
+    '操作描述',
+    'IP地址',
+    '状态',
+    '时间',
+  ]
+  const rows = filteredLogs.value.map((log) => [
+    log.id,
+    getLogTypeName(log.logType),
+    getActionTypeName(log.actionType),
+    log.userName,
+    log.module,
+    `"${log.description.replace(/"/g, '""')}"`,
+    log.ipAddress,
+    log.status === 'success' ? '成功' : '失败',
+    log.timestamp,
+  ])
+
+  const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n')
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `audit-logs-${Date.now()}.csv`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
+  ElMessage.success('日志导出成功')
 }
 
 // 工具函数

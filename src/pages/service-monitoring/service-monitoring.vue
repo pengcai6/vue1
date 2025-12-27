@@ -4,7 +4,12 @@
     <el-card style="margin-bottom: 20px">
       <el-form :inline="true">
         <el-form-item label="选择服务">
-          <el-select v-model="selectedService" placeholder="请选择服务" @change="handleServiceChange" style="width: 200px">
+          <el-select
+            v-model="selectedService"
+            placeholder="请选择服务"
+            @change="handleServiceChange"
+            style="width: 200px"
+          >
             <el-option
               v-for="service in services"
               :key="service.id"
@@ -36,13 +41,18 @@
         <el-card shadow="hover">
           <el-statistic title="服务状态">
             <template #default>
-              <el-tag :type="currentServiceStatus.status === 'running' ? 'success' : 'danger'" size="large">
+              <el-tag
+                :type="currentServiceStatus.status === 'running' ? 'success' : 'danger'"
+                size="large"
+              >
                 {{ currentServiceStatus.status === 'running' ? '运行中' : '异常' }}
               </el-tag>
             </template>
           </el-statistic>
           <div class="status-detail">
-            <div>副本数: {{ currentServiceStatus.replicas }}/{{ currentServiceStatus.desiredReplicas }}</div>
+            <div>
+              副本数: {{ currentServiceStatus.replicas }}/{{ currentServiceStatus.desiredReplicas }}
+            </div>
             <div>运行时长: {{ currentServiceStatus.uptime }}</div>
           </div>
         </el-card>
@@ -54,7 +64,8 @@
           </el-statistic>
           <div class="metric-detail">
             <span :style="{ color: getTrendColor(realTimeMetrics.qpsTrend) }">
-              {{ realTimeMetrics.qpsTrend > 0 ? '↑' : '↓' }} {{ Math.abs(realTimeMetrics.qpsTrend) }}%
+              {{ realTimeMetrics.qpsTrend > 0 ? '↑' : '↓' }}
+              {{ Math.abs(realTimeMetrics.qpsTrend) }}%
             </span>
           </div>
         </el-card>
@@ -67,6 +78,12 @@
           <div class="metric-detail">
             <span :style="{ color: getLatencyColor(realTimeMetrics.avgLatency) }">
               P99: {{ realTimeMetrics.p99Latency }}ms
+            </span>
+            <span
+              style="margin-left: 8px"
+              :style="{ color: getLatencyColor(realTimeMetrics.avgLatency) }"
+            >
+              P95: {{ realTimeMetrics.p95Latency }}ms
             </span>
           </div>
         </el-card>
@@ -101,9 +118,15 @@
         <el-card>
           <template #header>
             <div class="card-header">
-              <span class="title">延迟分布</span>
+              <span class="title">性能分位指标</span>
             </div>
           </template>
+          <el-tabs v-model="activeMetric" @tab-change="handleMetricTabChange">
+            <el-tab-pane label="TTFT" name="ttft" />
+            <el-tab-pane label="OTPS" name="otps" />
+            <el-tab-pane label="TPOT" name="tpot" />
+            <el-tab-pane label="E2E Latency" name="latency" />
+          </el-tabs>
           <div ref="latencyDistChartRef" style="width: 100%; height: 280px"></div>
         </el-card>
       </el-col>
@@ -190,9 +213,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="qps" label="QPS" width="110" align="center">
-          <template #default="{ row }">
-            {{ row.qps }} req/s
-          </template>
+          <template #default="{ row }"> {{ row.qps }} req/s </template>
         </el-table-column>
         <el-table-column prop="avgLatency" label="平均延迟" width="120" align="center">
           <template #default="{ row }">
@@ -201,17 +222,17 @@
         </el-table-column>
         <el-table-column prop="gpuUtil" label="GPU利用率" width="140" align="center">
           <template #default="{ row }">
-            <div style="display: flex; align-items: center; justify-content: center;">
-              <el-progress :percentage="row.gpuUtil" :stroke-width="6" style="width: 60px;" />
-              <span style="margin-left: 8px; white-space: nowrap;">{{ row.gpuUtil }}%</span>
+            <div style="display: flex; align-items: center; justify-content: center">
+              <el-progress :percentage="row.gpuUtil" :stroke-width="6" style="width: 60px" />
+              <span style="margin-left: 8px; white-space: nowrap">{{ row.gpuUtil }}%</span>
             </div>
           </template>
         </el-table-column>
         <el-table-column prop="memoryUtil" label="内存利用率" width="140" align="center">
           <template #default="{ row }">
-            <div style="display: flex; align-items: center; justify-content: center;">
-              <el-progress :percentage="row.memoryUtil" :stroke-width="6" style="width: 60px;" />
-              <span style="margin-left: 8px; white-space: nowrap;">{{ row.memoryUtil }}%</span>
+            <div style="display: flex; align-items: center; justify-content: center">
+              <el-progress :percentage="row.memoryUtil" :stroke-width="6" style="width: 60px" />
+              <span style="margin-left: 8px; white-space: nowrap">{{ row.memoryUtil }}%</span>
             </div>
           </template>
         </el-table-column>
@@ -287,9 +308,55 @@ const realTimeMetrics = ref({
   qpsTrend: 12.5,
   avgLatency: 1234,
   p99Latency: 2567,
+  p95Latency: 1850,
   successRate: 99.2,
   errorCount: 23,
 })
+
+const activeMetric = ref<'ttft' | 'otps' | 'tpot' | 'latency'>('ttft')
+
+const percentileSeries = {
+  ttft: {
+    unit: 'ms',
+    data: {
+      Avg: [150, 160, 175, 190, 205, 195, 180],
+      P50: [140, 150, 162, 175, 188, 180, 170],
+      P90: [200, 215, 235, 255, 270, 260, 245],
+      P95: [230, 245, 265, 285, 305, 295, 280],
+      P99: [320, 340, 360, 380, 400, 390, 370],
+    },
+  },
+  otps: {
+    unit: 'tokens/s',
+    data: {
+      Avg: [45, 48, 52, 55, 58, 56, 50],
+      P50: [48, 50, 54, 58, 60, 58, 52],
+      P90: [35, 38, 42, 45, 48, 46, 40],
+      P95: [30, 34, 38, 42, 45, 43, 38],
+      P99: [20, 22, 26, 30, 32, 30, 26],
+    },
+  },
+  tpot: {
+    unit: 'ms/token',
+    data: {
+      Avg: [25, 26, 27, 29, 31, 30, 28],
+      P50: [22, 23, 24, 26, 28, 27, 25],
+      P90: [30, 32, 34, 36, 38, 37, 35],
+      P95: [35, 37, 39, 42, 44, 43, 41],
+      P99: [45, 47, 49, 52, 54, 53, 50],
+    },
+  },
+  latency: {
+    unit: 'ms',
+    data: {
+      Avg: [1200, 1250, 1320, 1400, 1480, 1420, 1350],
+      P50: [892, 945, 1023, 1156, 1234, 1178, 1089],
+      P90: [1456, 1523, 1678, 1823, 1945, 1867, 1734],
+      P95: [1680, 1760, 1890, 2040, 2190, 2080, 1950],
+      P99: [2134, 2267, 2456, 2678, 2834, 2723, 2567],
+    },
+  },
+} as const
 
 // 资源使用
 const resourceUsage = ref({
@@ -365,6 +432,10 @@ const handleRefresh = () => {
   initCharts()
 }
 
+const handleMetricTabChange = () => {
+  renderPercentileChart(activeMetric.value)
+}
+
 // 初始化图表
 const initCharts = async () => {
   await nextTick()
@@ -393,43 +464,8 @@ const initCharts = async () => {
     })
   }
 
-  // 延迟分布图
-  if (latencyDistChartRef.value) {
-    latencyDistChart = echarts.init(latencyDistChartRef.value)
-    latencyDistChart.setOption({
-      tooltip: { trigger: 'axis' },
-      legend: { data: ['P50', 'P90', 'P99'], top: '0%' },
-      grid: { left: '3%', right: '4%', bottom: '3%', top: '12%', containLabel: true },
-      xAxis: {
-        type: 'category',
-        data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
-      },
-      yAxis: { type: 'value', name: 'ms' },
-      series: [
-        {
-          name: 'P50',
-          type: 'line',
-          smooth: true,
-          data: [892, 945, 1023, 1156, 1234, 1178, 1089],
-          itemStyle: { color: '#67c23a' },
-        },
-        {
-          name: 'P90',
-          type: 'line',
-          smooth: true,
-          data: [1456, 1523, 1678, 1823, 1945, 1867, 1734],
-          itemStyle: { color: '#e6a23c' },
-        },
-        {
-          name: 'P99',
-          type: 'line',
-          smooth: true,
-          data: [2134, 2267, 2456, 2678, 2834, 2723, 2567],
-          itemStyle: { color: '#f56c6c' },
-        },
-      ],
-    })
-  }
+  // Performance percentiles (TTFT/OTPS/TPOT/E2E)
+  renderPercentileChart(activeMetric.value)
 
   // GPU利用率图
   if (gpuUtilChartRef.value) {
@@ -492,6 +528,36 @@ const initCharts = async () => {
       ],
     })
   }
+}
+
+// 性能分位图渲染
+const renderPercentileChart = (metricKey: keyof typeof percentileSeries) => {
+  if (!latencyDistChartRef.value) return
+  if (!latencyDistChart) {
+    latencyDistChart = echarts.init(latencyDistChartRef.value)
+  }
+  const config = percentileSeries[metricKey]
+  const labels = Object.keys(config.data)
+  const palette = ['#409eff', '#67c23a', '#e6a23c', '#f6c343', '#f56c6c']
+  const series = labels.map((name, idx) => ({
+    name,
+    type: 'line',
+    smooth: true,
+    data: config.data[name as keyof typeof config.data],
+    itemStyle: { color: palette[idx % palette.length] },
+  }))
+
+  latencyDistChart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: labels, top: '0%' },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '12%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+    },
+    yAxis: { type: 'value', name: config.unit },
+    series,
+  })
 }
 
 // 工具函数

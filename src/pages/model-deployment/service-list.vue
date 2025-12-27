@@ -1,19 +1,15 @@
 <template>
-  <div class="service-list-page">
+  <div class="service-list-page p-5">
     <el-card class="header-card">
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold">
-          模型服务列表
-        </h2>
-        <el-button type="primary" @click="deployNew">
-          一键部署
-        </el-button>
+        <h2 class="text-2xl font-bold">模型服务列表</h2>
+        <el-button type="primary" @click="deployNew"> 一键部署 </el-button>
       </div>
     </el-card>
 
     <el-card class="mt-4">
-      <el-table :data="services" stripe>
-        <el-table-column prop="serviceName" label="服务名称" width="200" />
+      <el-table :data="services" stripe style="width: 100%">
+        <el-table-column prop="serviceName" label="服务名称" min-width="200" />
         <el-table-column label="服务状态" width="120" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === 'running' ? 'success' : 'info'">
@@ -28,21 +24,16 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="modelName" label="模型名称" width="180" />
+        <el-table-column prop="modelName" label="模型名称" min-width="180" />
         <el-table-column prop="replicas" label="副本数" width="100" align="center" />
-        <el-table-column prop="cluster" label="集群" width="150" />
+        <el-table-column prop="cluster" label="集群" min-width="150" />
         <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="300" fixed="right">
+        <el-table-column label="操作" width="380" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewDetail(row)">
-              详情
-            </el-button>
-            <el-button link @click="viewPods(row)">
-              Pod列表
-            </el-button>
-            <el-button link @click="viewMonitoring(row)">
-              性能监控
-            </el-button>
+            <el-button link type="primary" @click="viewDetail(row)"> 详情 </el-button>
+            <el-button link @click="viewPods(row)"> Pod列表 </el-button>
+            <el-button link @click="viewMonitoring(row)"> 性能监控 </el-button>
+            <el-button link @click="viewPerformanceTest(row)"> 性能测试 </el-button>
             <el-button
               v-if="row.status === 'running'"
               link
@@ -51,14 +42,9 @@
             >
               停止
             </el-button>
-            <el-popconfirm
-              title="确定要删除此服务吗？"
-              @confirm="deleteService(row.id)"
-            >
+            <el-popconfirm title="确定要删除此服务吗？" @confirm="deleteService(row.id)">
               <template #reference>
-                <el-button link type="danger">
-                  删除
-                </el-button>
+                <el-button link type="danger"> 删除 </el-button>
               </template>
             </el-popconfirm>
           </template>
@@ -72,7 +58,6 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 const router = useRouter()
 const services = ref<any[]>([])
@@ -117,18 +102,23 @@ function deployNew() {
 }
 
 function viewDetail(service: any) {
-  setStorage('current-service', service)
+  localStorage.setItem('current-service', JSON.stringify(service))
   router.push('/model-deployment/deployment-detail')
 }
 
 function viewPods(service: any) {
-  setStorage('current-service', service)
+  localStorage.setItem('current-service', JSON.stringify(service))
   router.push('/model-deployment/pod-logs')
 }
 
 function viewMonitoring(service: any) {
-  setStorage('current-service', service)
+  localStorage.setItem('current-service', JSON.stringify(service))
   router.push('/model-deployment/performance-monitoring')
+}
+
+function viewPerformanceTest(service: any) {
+  localStorage.setItem('current-service', JSON.stringify(service))
+  router.push('/model-deployment/performance-testing')
 }
 
 function stopService(service: any) {
@@ -139,27 +129,21 @@ function stopService(service: any) {
 }
 
 function deleteService(id: string) {
-  services.value = services.value.filter(s => s.id !== id)
+  services.value = services.value.filter((s) => s.id !== id)
   saveToStorage()
   ElMessage.success('服务已删除')
 }
 
 function saveToStorage() {
-  setStorage('deployment-services', services.value)
+  localStorage.setItem('deployment-services', JSON.stringify(services.value))
 }
 
 function loadFromStorage() {
-  const stored = getStorage('deployment-services', [])
-  services.value = stored.length > 0 ? stored : initMockData()
+  const stored = localStorage.getItem('deployment-services')
+  services.value = stored ? JSON.parse(stored) : initMockData()
 }
 
 onMounted(() => {
   loadFromStorage()
 })
 </script>
-
-<style scoped lang="scss">
-.service-list-page {
-  padding: 20px;
-}
-</style>

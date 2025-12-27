@@ -7,8 +7,8 @@
     </el-page-header>
 
     <el-card class="mt-4">
-      <el-table :data="pods" stripe>
-        <el-table-column prop="podName" label="容器组名称" width="250" />
+      <el-table :data="pods" stripe style="width: 100%">
+        <el-table-column prop="podName" label="容器组名称" min-width="250" />
         <el-table-column label="状态" width="120" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === 'Running' ? 'success' : 'warning'">
@@ -16,30 +16,40 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="cluster" label="集群" width="150" />
-        <el-table-column prop="node" label="所在节点" width="180" />
-        <el-table-column prop="gpuCards" label="所占GPU卡" width="150" />
+        <el-table-column prop="cluster" label="集群" min-width="150" />
+        <el-table-column prop="node" label="所在节点" min-width="180" />
+        <el-table-column prop="gpuCards" label="所占GPU卡" min-width="150" />
         <el-table-column prop="restarts" label="重启次数" width="100" align="center" />
-        <el-table-column prop="podIP" label="容器组IP" width="150" />
+        <el-table-column prop="podIP" label="容器组IP" min-width="150" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewLogs(row)">
-              查看日志
-            </el-button>
-            <el-button link @click="viewEvents(row)">
-              查看事件
-            </el-button>
+            <el-button link type="primary" @click="viewLogs(row)"> 查看日志 </el-button>
+            <el-button link @click="viewEvents(row)"> 查看事件 </el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
-    <el-dialog v-model="showLogsDialog" title="容器日志" width="80%">
+    <el-dialog v-model="showLogsDialog" title="容器日志" width="80%" append-to-body>
       <div class="log-viewer">
         <div v-for="(log, index) in logs" :key="index" class="log-line">
           {{ log }}
         </div>
       </div>
+    </el-dialog>
+
+    <el-dialog v-model="showEventsDialog" title="容器事件" width="80%" append-to-body>
+      <el-table :data="events" stripe style="width: 100%">
+        <el-table-column prop="type" label="类型" width="100">
+          <template #default="{ row }">
+            <el-tag :type="row.type === 'Normal' ? 'info' : 'warning'">{{ row.type }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="原因" width="150" />
+        <el-table-column prop="message" label="消息" />
+        <el-table-column prop="count" label="次数" width="80" align="center" />
+        <el-table-column prop="lastTimestamp" label="最后时间" width="180" />
+      </el-table>
     </el-dialog>
   </div>
 </template>
@@ -69,6 +79,7 @@ const pods = ref([
 ])
 
 const showLogsDialog = ref(false)
+const showEventsDialog = ref(false)
 const logs = ref([
   '[2024-01-15 14:30:00] INFO: Starting model service...',
   '[2024-01-15 14:30:05] INFO: Loading model weights...',
@@ -76,12 +87,52 @@ const logs = ref([
   '[2024-01-15 14:30:25] INFO: Server listening on port 8000',
 ])
 
+const events = ref([
+  {
+    type: 'Normal',
+    reason: 'Scheduled',
+    message: 'Successfully assigned default/llama2-chat-service-7b8f9d-0 to gpu-node-01',
+    count: 1,
+    lastTimestamp: '2024-01-15 14:30:00',
+  },
+  {
+    type: 'Normal',
+    reason: 'Pulling',
+    message: 'Pulling image "registry.example.com/models/llama2:7b"',
+    count: 1,
+    lastTimestamp: '2024-01-15 14:30:02',
+  },
+  {
+    type: 'Normal',
+    reason: 'Pulled',
+    message: 'Successfully pulled image "registry.example.com/models/llama2:7b"',
+    count: 1,
+    lastTimestamp: '2024-01-15 14:30:15',
+  },
+  {
+    type: 'Normal',
+    reason: 'Created',
+    message: 'Created container model-service',
+    count: 1,
+    lastTimestamp: '2024-01-15 14:30:16',
+  },
+  {
+    type: 'Normal',
+    reason: 'Started',
+    message: 'Started container model-service',
+    count: 1,
+    lastTimestamp: '2024-01-15 14:30:17',
+  },
+])
+
 function viewLogs(pod: any) {
+  console.log('[大模型服务平台] Viewing logs for:', pod.podName)
   showLogsDialog.value = true
 }
 
 function viewEvents(pod: any) {
-  console.log('View events for:', pod)
+  console.log('[大模型服务平台] View events for:', pod)
+  showEventsDialog.value = true
 }
 </script>
 

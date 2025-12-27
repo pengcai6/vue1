@@ -151,36 +151,36 @@
         </el-table-column>
         <el-table-column prop="successRate" label="成功率" width="100" align="center" sortable>
           <template #default="{ row }">
-            <el-tag :type="row.successRate >= 99 ? 'success' : row.successRate >= 95 ? 'warning' : 'danger'">
+            <el-tag
+              :type="
+                row.successRate >= 99 ? 'success' : row.successRate >= 95 ? 'warning' : 'danger'
+              "
+            >
               {{ row.successRate }}%
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="avgLatency" label="平均延迟(ms)" width="130" align="right" sortable />
+        <el-table-column
+          prop="avgLatency"
+          label="平均延迟(ms)"
+          width="130"
+          align="right"
+          sortable
+        />
         <el-table-column prop="inputTokens" label="输入Tokens" width="130" align="right" sortable>
-          <template #default="{ row }">
-            {{ (row.inputTokens / 1000000).toFixed(2) }}M
-          </template>
+          <template #default="{ row }"> {{ (row.inputTokens / 1000000).toFixed(2) }}M </template>
         </el-table-column>
         <el-table-column prop="outputTokens" label="输出Tokens" width="130" align="right" sortable>
-          <template #default="{ row }">
-            {{ (row.outputTokens / 1000000).toFixed(2) }}M
-          </template>
+          <template #default="{ row }"> {{ (row.outputTokens / 1000000).toFixed(2) }}M </template>
         </el-table-column>
         <el-table-column prop="totalTokens" label="总Tokens" width="130" align="right" sortable>
-          <template #default="{ row }">
-            {{ (row.totalTokens / 1000000).toFixed(2) }}M
-          </template>
+          <template #default="{ row }"> {{ (row.totalTokens / 1000000).toFixed(2) }}M </template>
         </el-table-column>
         <el-table-column prop="cost" label="成本(¥)" width="120" align="right" sortable>
-          <template #default="{ row }">
-            ¥{{ row.cost.toLocaleString() }}
-          </template>
+          <template #default="{ row }"> ¥{{ row.cost.toLocaleString() }} </template>
         </el-table-column>
         <el-table-column prop="revenue" label="营收(¥)" width="120" align="right" sortable>
-          <template #default="{ row }">
-            ¥{{ row.revenue.toLocaleString() }}
-          </template>
+          <template #default="{ row }"> ¥{{ row.revenue.toLocaleString() }} </template>
         </el-table-column>
         <el-table-column label="毛利率" width="100" align="center">
           <template #default="{ row }">
@@ -312,7 +312,44 @@ const handleDateChange = () => {
 
 // 导出报告
 const handleExportReport = () => {
-  ElMessage.success('运营报告导出功能（演示模式）- 已生成 Excel 文件')
+  const headers = [
+    '服务名称',
+    '调用次数',
+    '成功率(%)',
+    '平均延迟(ms)',
+    '输入Tokens',
+    '输出Tokens',
+    '总Tokens',
+    '成本(¥)',
+    '营收(¥)',
+    '毛利率(%)',
+  ]
+
+  const rows = serviceStats.value.map((stat) => [
+    stat.serviceName,
+    stat.calls,
+    stat.successRate,
+    stat.avgLatency,
+    stat.inputTokens,
+    stat.outputTokens,
+    stat.totalTokens,
+    stat.cost,
+    stat.revenue,
+    stat.margin,
+  ])
+
+  const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n')
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `operational-report-${Date.now()}.csv`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
+  ElMessage.success('运营报告导出成功')
 }
 
 // 初始化图表

@@ -1,5 +1,5 @@
 <template>
-  <div class="model-detail-page">
+  <div class="model-detail-page p-5">
     <el-page-header @back="goBack">
       <template #content>
         <div class="flex items-center gap-3">
@@ -16,12 +16,24 @@
         <!-- 模型介绍 -->
         <el-tab-pane label="模型介绍" name="intro">
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="模型名称">{{ model.name }}</el-descriptions-item>
-            <el-descriptions-item label="厂商/系列">{{ model.vendor }}</el-descriptions-item>
-            <el-descriptions-item label="版本">{{ model.version }}</el-descriptions-item>
-            <el-descriptions-item label="参数量">{{ model.parameters }}</el-descriptions-item>
-            <el-descriptions-item label="上下文长度">{{ model.contextLength }}</el-descriptions-item>
-            <el-descriptions-item label="模型类型">{{ getCategoryName(model.category) }}</el-descriptions-item>
+            <el-descriptions-item label="模型名称">
+              {{ model.name }}
+            </el-descriptions-item>
+            <el-descriptions-item label="厂商/系列">
+              {{ model.vendor }}
+            </el-descriptions-item>
+            <el-descriptions-item label="版本">
+              {{ model.version }}
+            </el-descriptions-item>
+            <el-descriptions-item label="参数量">
+              {{ model.parameters }}
+            </el-descriptions-item>
+            <el-descriptions-item label="上下文长度">
+              {{ model.contextLength }}
+            </el-descriptions-item>
+            <el-descriptions-item label="模型类型">
+              {{ getCategoryName(model.category) }}
+            </el-descriptions-item>
           </el-descriptions>
 
           <div class="mt-4">
@@ -76,10 +88,10 @@
           <div class="api-doc">
             <h3 class="font-bold mb-3">调用示例</h3>
             <el-alert type="info" :closable="false" class="mb-3">
-              <p>API端点: <code>https://api.example.com/v1/chat/completions</code></p>
+              <p>API 端点: <code>https://api.example.com/v1/chat/completions</code></p>
             </el-alert>
 
-            <h4 class="font-bold mt-4 mb-2">Python示例</h4>
+            <h4 class="font-bold mt-4 mb-2">Python 示例</h4>
             <pre class="code-block"><code>import requests
 
 url = "https://api.example.com/v1/chat/completions"
@@ -99,7 +111,7 @@ data = {
 response = requests.post(url, headers=headers, json=data)
 print(response.json())</code></pre>
 
-            <h4 class="font-bold mt-4 mb-2">cURL示例</h4>
+            <h4 class="font-bold mt-4 mb-2">cURL 示例</h4>
             <pre class="code-block"><code>curl https://api.example.com/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -118,12 +130,8 @@ print(response.json())</code></pre>
       <el-button v-if="model?.isDeployed" type="primary" size="large" @click="tryOnline">
         在线体验
       </el-button>
-      <el-button size="large" @click="viewAPIDoc">
-        查看API文档
-      </el-button>
-      <el-button size="large" @click="deployModel">
-        部署模型
-      </el-button>
+      <el-button size="large" @click="viewAPIDoc"> 查看API文档 </el-button>
+      <el-button size="large" @click="deployModel"> 部署模型 </el-button>
     </div>
   </div>
 </template>
@@ -131,7 +139,6 @@ print(response.json())</code></pre>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getStorage, setStorage } from '~/utils/storage'
 
 interface Model {
   id: string
@@ -158,18 +165,19 @@ const evaluationData = ref([
   { dataset: 'HumanEval', metric: 'Pass@1', score: '65.8%' },
 ])
 
-function getCategoryTag(category: string) {
-  const map: Record<string, string> = {
+function getCategoryTag(category: string): 'primary' | 'success' | 'warning' | 'danger' | 'info' {
+  const map: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
     text: 'primary',
     image: 'success',
     audio: 'warning',
     video: 'danger',
     embedding: 'info',
+    rerank: 'info',
   }
-  return map[category] || ''
+  return map[category] || 'info'
 }
 
-function getCategoryName(category: string) {
+function getCategoryName(category: string): string {
   const map: Record<string, string> = {
     text: '文本生成',
     image: '图像生成',
@@ -194,19 +202,18 @@ function viewAPIDoc() {
 }
 
 function deployModel() {
-  setStorage('deploy-model', model.value)
+  localStorage.setItem('deploy-model', JSON.stringify(model.value))
   router.push('/model-deployment/one-click-deploy')
 }
 
 onMounted(() => {
-  model.value = getStorage<Model | null>('current-model', null)
+  const stored = localStorage.getItem('current-model')
+  model.value = stored ? JSON.parse(stored) : null
 })
 </script>
 
 <style scoped lang="scss">
 .model-detail-page {
-  padding: 20px;
-
   .api-doc {
     .code-block {
       background: #f5f7fa;

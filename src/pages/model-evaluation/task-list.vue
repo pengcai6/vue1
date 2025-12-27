@@ -1,5 +1,5 @@
 <template>
-  <div class="evaluation-task-list-page">
+  <div class="evaluation-task-list-page p-5">
     <el-card class="header-card">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-bold">测评任务列表</h2>
@@ -33,9 +33,7 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewResults(row)">
-              查看结果
-            </el-button>
+            <el-button link type="primary" @click="viewResults(row)"> 查看结果 </el-button>
             <el-popconfirm title="确定删除?" @confirm="deleteTask(row.id)">
               <template #reference>
                 <el-button link type="danger">删除</el-button>
@@ -52,7 +50,6 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getStorage, setStorage } from '~/utils/storage'
 
 const router = useRouter()
 const tasks = ref<any[]>([])
@@ -73,24 +70,18 @@ function initMockData() {
 }
 
 function viewResults(task: any) {
-  setStorage('current-eval-task', task)
+  localStorage.setItem('current-eval-task', JSON.stringify(task))
   router.push('/model-evaluation/evaluation-results')
 }
 
 function deleteTask(id: string) {
-  tasks.value = tasks.value.filter(t => t.id !== id)
-  setStorage('evaluation-tasks', tasks.value)
+  tasks.value = tasks.value.filter((t) => t.id !== id)
+  localStorage.setItem('evaluation-tasks', JSON.stringify(tasks.value))
   ElMessage.success('删除成功')
 }
 
 onMounted(() => {
-  const stored = getStorage('evaluation-tasks', [])
-  tasks.value = stored.length > 0 ? stored : initMockData()
+  const stored = localStorage.getItem('evaluation-tasks')
+  tasks.value = stored ? JSON.parse(stored) : initMockData()
 })
 </script>
-
-<style scoped lang="scss">
-.evaluation-task-list-page {
-  padding: 20px;
-}
-</style>

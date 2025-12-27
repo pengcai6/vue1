@@ -17,10 +17,20 @@
           <!-- 筛选栏 -->
           <el-form :inline="true" class="search-form">
             <el-form-item label="规则名称">
-              <el-input v-model="ruleSearchForm.name" placeholder="请输入规则名称" clearable style="width: 150px" />
+              <el-input
+                v-model="ruleSearchForm.name"
+                placeholder="请输入规则名称"
+                clearable
+                style="width: 150px"
+              />
             </el-form-item>
             <el-form-item label="告警级别">
-              <el-select v-model="ruleSearchForm.severity" placeholder="请选择级别" clearable style="width: 120px">
+              <el-select
+                v-model="ruleSearchForm.severity"
+                placeholder="请选择级别"
+                clearable
+                style="width: 120px"
+              >
                 <el-option label="全部" value="" />
                 <el-option label="严重" value="critical" />
                 <el-option label="警告" value="warning" />
@@ -28,7 +38,12 @@
               </el-select>
             </el-form-item>
             <el-form-item label="状态">
-              <el-select v-model="ruleSearchForm.enabled" placeholder="请选择状态" clearable style="width: 120px">
+              <el-select
+                v-model="ruleSearchForm.enabled"
+                placeholder="请选择状态"
+                clearable
+                style="width: 120px"
+              >
                 <el-option label="全部" value="" />
                 <el-option label="已启用" value="true" />
                 <el-option label="已禁用" value="false" />
@@ -67,8 +82,12 @@
             </el-table-column>
             <el-table-column label="操作" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEditRule(row)">编辑</el-button>
-                <el-button link type="danger" size="small" @click="handleDeleteRule(row)">删除</el-button>
+                <el-button link type="primary" size="small" @click="handleEditRule(row)"
+                  >编辑</el-button
+                >
+                <el-button link type="danger" size="small" @click="handleDeleteRule(row)"
+                  >删除</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
@@ -192,7 +211,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="阈值" prop="threshold">
-          <el-input-number v-model="ruleFormData.threshold" :min="0" :max="100" style="width: 100%" />
+          <el-input-number
+            v-model="ruleFormData.threshold"
+            :min="0"
+            :max="100"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item label="持续时间" prop="duration">
           <el-input-number v-model="ruleFormData.duration" :min="1" :max="60" style="width: 100%" />
@@ -229,7 +253,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
-import { getStorage, setStorage } from '@/utils/storage'
 
 interface AlertRule {
   id: string
@@ -416,21 +439,11 @@ const initMockData = () => {
 
   alertRules.value = mockRules
   alerts.value = mockAlerts
-  setStorage(RULES_STORAGE_KEY, mockRules)
-  setStorage(ALERTS_STORAGE_KEY, mockAlerts)
 }
 
 // 加载数据
 const loadData = () => {
-  const savedRules = getStorage(RULES_STORAGE_KEY)
-  const savedAlerts = getStorage(ALERTS_STORAGE_KEY)
-
-  if (savedRules && Array.isArray(savedRules) && savedRules.length > 0) {
-    alertRules.value = savedRules
-    alerts.value = savedAlerts || []
-  } else {
-    initMockData()
-  }
+  initMockData()
 }
 
 // 过滤规则
@@ -439,7 +452,7 @@ const filteredRules = computed(() => {
 
   if (ruleSearchForm.value.name) {
     result = result.filter((rule) =>
-      rule.name.toLowerCase().includes(ruleSearchForm.value.name.toLowerCase())
+      rule.name.toLowerCase().includes(ruleSearchForm.value.name.toLowerCase()),
     )
   }
 
@@ -498,14 +511,13 @@ const handleDeleteRule = (row: AlertRule) => {
     const index = alertRules.value.findIndex((r) => r.id === row.id)
     if (index > -1) {
       alertRules.value.splice(index, 1)
-      setStorage(RULES_STORAGE_KEY, alertRules.value)
+
       ElMessage.success('删除成功')
     }
   })
 }
 
 const handleToggleRuleStatus = (row: AlertRule) => {
-  setStorage(RULES_STORAGE_KEY, alertRules.value)
   ElMessage.success(row.enabled ? '规则已启用' : '规则已禁用')
 }
 
@@ -521,7 +533,9 @@ const handleSubmitRule = async () => {
   }
 
   const condition = `${operatorSymbols[ruleFormData.value.operator]} ${ruleFormData.value.threshold}${
-    ruleFormData.value.metric.includes('rate') || ruleFormData.value.metric.includes('utilization') ? '%' : ''
+    ruleFormData.value.metric.includes('rate') || ruleFormData.value.metric.includes('utilization')
+      ? '%'
+      : ''
   } 持续${ruleFormData.value.duration}分钟`
 
   if (ruleDialogMode.value === 'create') {
@@ -541,7 +555,6 @@ const handleSubmitRule = async () => {
     }
   }
 
-  setStorage(RULES_STORAGE_KEY, alertRules.value)
   ruleDialogVisible.value = false
 }
 
@@ -568,7 +581,6 @@ const handleRefreshAlerts = () => {
 
 const handleResolveAlert = (alert: Alert) => {
   alert.status = 'resolved'
-  setStorage(ALERTS_STORAGE_KEY, alerts.value)
   ElMessage.success('告警已标记为已解决')
 }
 

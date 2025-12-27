@@ -20,7 +20,12 @@
       <!-- 筛选栏 -->
       <el-form :inline="true" class="search-form">
         <el-form-item label="服务名称">
-          <el-select v-model="searchForm.serviceName" placeholder="请选择服务" clearable style="width: 180px">
+          <el-select
+            v-model="searchForm.serviceName"
+            placeholder="请选择服务"
+            clearable
+            style="width: 180px"
+          >
             <el-option label="全部" value="" />
             <el-option label="qwen-chat-api" value="qwen-chat-api" />
             <el-option label="deepseek-inference" value="deepseek-inference" />
@@ -28,10 +33,20 @@
           </el-select>
         </el-form-item>
         <el-form-item label="API端点">
-          <el-input v-model="searchForm.endpoint" placeholder="请输入API端点" clearable style="width: 180px" />
+          <el-input
+            v-model="searchForm.endpoint"
+            placeholder="请输入API端点"
+            clearable
+            style="width: 180px"
+          />
         </el-form-item>
         <el-form-item label="状态码">
-          <el-select v-model="searchForm.statusCode" placeholder="请选择状态码" clearable style="width: 120px">
+          <el-select
+            v-model="searchForm.statusCode"
+            placeholder="请选择状态码"
+            clearable
+            style="width: 120px"
+          >
             <el-option label="全部" value="" />
             <el-option label="200" value="200" />
             <el-option label="400" value="400" />
@@ -40,7 +55,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="API Key">
-          <el-input v-model="searchForm.apiKey" placeholder="请输入API Key" clearable style="width: 150px" />
+          <el-input
+            v-model="searchForm.apiKey"
+            placeholder="请输入API Key"
+            clearable
+            style="width: 150px"
+          />
         </el-form-item>
         <el-form-item label="时间范围">
           <el-date-picker
@@ -119,6 +139,9 @@
             <span :style="{ color: getLatencyColor(row.latency) }">{{ row.latency }}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="ttft" label="TTFT(ms)" width="100" align="center" />
+        <el-table-column prop="tps" label="TPS" width="80" align="center" />
+        <el-table-column prop="organization" label="组织" width="120" show-overflow-tooltip />
         <el-table-column prop="inputTokens" label="输入tokens" width="110" align="center" />
         <el-table-column prop="outputTokens" label="输出tokens" width="110" align="center" />
         <el-table-column prop="totalTokens" label="总tokens" width="100" align="center" />
@@ -126,7 +149,9 @@
         <el-table-column prop="timestamp" label="请求时间" width="180" />
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleViewDetail(row)">详情</el-button>
+            <el-button link type="primary" size="small" @click="handleViewDetail(row)"
+              >详情</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -164,14 +189,25 @@
         <el-descriptions-item label="API Key">{{ selectedLog.apiKey }}</el-descriptions-item>
         <el-descriptions-item label="用户标识">{{ selectedLog.userId }}</el-descriptions-item>
         <el-descriptions-item label="请求延迟">{{ selectedLog.latency }}ms</el-descriptions-item>
+        <el-descriptions-item label="TTFT">{{ selectedLog.ttft }}ms</el-descriptions-item>
+        <el-descriptions-item label="TPS">{{ selectedLog.tps }}</el-descriptions-item>
+        <el-descriptions-item label="组织">{{ selectedLog.organization }}</el-descriptions-item>
         <el-descriptions-item label="模型名称">{{ selectedLog.modelName }}</el-descriptions-item>
-        <el-descriptions-item label="输入tokens">{{ selectedLog.inputTokens }}</el-descriptions-item>
-        <el-descriptions-item label="输出tokens">{{ selectedLog.outputTokens }}</el-descriptions-item>
+        <el-descriptions-item label="输入tokens">{{
+          selectedLog.inputTokens
+        }}</el-descriptions-item>
+        <el-descriptions-item label="输出tokens">{{
+          selectedLog.outputTokens
+        }}</el-descriptions-item>
         <el-descriptions-item label="总tokens">{{ selectedLog.totalTokens }}</el-descriptions-item>
-        <el-descriptions-item label="费用估算">¥{{ selectedLog.estimatedCost }}</el-descriptions-item>
+        <el-descriptions-item label="费用估算"
+          >¥{{ selectedLog.estimatedCost }}</el-descriptions-item
+        >
         <el-descriptions-item label="IP地址">{{ selectedLog.ipAddress }}</el-descriptions-item>
         <el-descriptions-item label="地理位置">{{ selectedLog.location }}</el-descriptions-item>
-        <el-descriptions-item label="请求时间" :span="2">{{ selectedLog.timestamp }}</el-descriptions-item>
+        <el-descriptions-item label="请求时间" :span="2">{{
+          selectedLog.timestamp
+        }}</el-descriptions-item>
         <el-descriptions-item label="请求体" :span="2">
           <el-input
             v-model="selectedLog.requestBody"
@@ -199,7 +235,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download, Refresh } from '@element-plus/icons-vue'
-import { getStorage, setStorage } from '@/utils/storage'
 
 interface InvocationLog {
   id: string
@@ -210,6 +245,9 @@ interface InvocationLog {
   apiKey: string
   userId: string
   latency: number
+  ttft: number
+  tps: number
+  organization: string
   modelName: string
   inputTokens: number
   outputTokens: number
@@ -242,7 +280,8 @@ const statistics = computed(() => {
   const totalCalls = logs.length
   const successCalls = logs.filter((log) => log.statusCode === 200).length
   const successRate = totalCalls > 0 ? (successCalls / totalCalls) * 100 : 0
-  const avgLatency = totalCalls > 0 ? logs.reduce((sum, log) => sum + log.latency, 0) / totalCalls : 0
+  const avgLatency =
+    totalCalls > 0 ? logs.reduce((sum, log) => sum + log.latency, 0) / totalCalls : 0
   const totalTokens = logs.reduce((sum, log) => sum + log.totalTokens, 0)
 
   return {
@@ -273,6 +312,9 @@ const initMockData = () => {
       apiKey: 'sk-1234567890abcdef1234567890abcdef',
       userId: 'user-001',
       latency: 1234,
+      ttft: 150,
+      tps: 45,
+      organization: '研发部',
       modelName: 'Qwen2.5-72B-Instruct',
       inputTokens: 156,
       outputTokens: 423,
@@ -289,7 +331,7 @@ const initMockData = () => {
           max_tokens: 500,
         },
         null,
-        2
+        2,
       ),
       responseBody: JSON.stringify(
         {
@@ -306,7 +348,7 @@ const initMockData = () => {
           usage: { prompt_tokens: 156, completion_tokens: 423, total_tokens: 579 },
         },
         null,
-        2
+        2,
       ),
     },
     {
@@ -318,6 +360,9 @@ const initMockData = () => {
       apiKey: 'sk-abcdefgh1234567890abcdefgh123456',
       userId: 'user-002',
       latency: 2156,
+      ttft: 200,
+      tps: 52,
+      organization: '市场部',
       modelName: 'DeepSeek-V3',
       inputTokens: 234,
       outputTokens: 678,
@@ -333,7 +378,7 @@ const initMockData = () => {
           temperature: 0.8,
         },
         null,
-        2
+        2,
       ),
       responseBody: JSON.stringify(
         {
@@ -350,7 +395,7 @@ const initMockData = () => {
           usage: { prompt_tokens: 234, completion_tokens: 678, total_tokens: 912 },
         },
         null,
-        2
+        2,
       ),
     },
     {
@@ -362,6 +407,9 @@ const initMockData = () => {
       apiKey: 'sk-invalid-key-12345',
       userId: 'unknown',
       latency: 45,
+      ttft: 0,
+      tps: 0,
+      organization: '未知',
       modelName: '',
       inputTokens: 0,
       outputTokens: 0,
@@ -376,9 +424,13 @@ const initMockData = () => {
           messages: [{ role: 'user', content: 'Hello' }],
         },
         null,
-        2
+        2,
       ),
-      responseBody: JSON.stringify({ error: { message: 'Invalid API key', type: 'invalid_request_error' } }, null, 2),
+      responseBody: JSON.stringify(
+        { error: { message: 'Invalid API key', type: 'invalid_request_error' } },
+        null,
+        2,
+      ),
     },
     {
       id: 'req-1719123470234-jkl012',
@@ -389,6 +441,9 @@ const initMockData = () => {
       apiKey: 'sk-glm-key-xyz987654321',
       userId: 'user-003',
       latency: 1567,
+      ttft: 180,
+      tps: 48,
+      organization: '产品部',
       modelName: 'GLM-4-Plus',
       inputTokens: 189,
       outputTokens: 512,
@@ -404,7 +459,7 @@ const initMockData = () => {
           temperature: 0.5,
         },
         null,
-        2
+        2,
       ),
       responseBody: JSON.stringify(
         {
@@ -413,7 +468,8 @@ const initMockData = () => {
             {
               message: {
                 role: 'assistant',
-                content: '以下是Python实现的快速排序代码：\n```python\ndef quicksort(arr):\n    ...',
+                content:
+                  '以下是Python实现的快速排序代码：\n```python\ndef quicksort(arr):\n    ...',
               },
               finish_reason: 'stop',
             },
@@ -421,7 +477,7 @@ const initMockData = () => {
           usage: { prompt_tokens: 189, completion_tokens: 512, total_tokens: 701 },
         },
         null,
-        2
+        2,
       ),
     },
     {
@@ -433,6 +489,9 @@ const initMockData = () => {
       apiKey: 'sk-1234567890abcdef1234567890abcdef',
       userId: 'user-001',
       latency: 5023,
+      ttft: 0,
+      tps: 0,
+      organization: '研发部',
       modelName: 'Qwen2.5-72B-Instruct',
       inputTokens: 0,
       outputTokens: 0,
@@ -447,25 +506,22 @@ const initMockData = () => {
           messages: [{ role: 'user', content: '测试请求' }],
         },
         null,
-        2
+        2,
       ),
-      responseBody: JSON.stringify({ error: { message: 'Internal server error', type: 'server_error' } }, null, 2),
+      responseBody: JSON.stringify(
+        { error: { message: 'Internal server error', type: 'server_error' } },
+        null,
+        2,
+      ),
     },
   ]
 
   invocationLogs.value = mockLogs
-  setStorage(STORAGE_KEY, mockLogs)
 }
 
 // 加载数据
 const loadData = () => {
-  const savedLogs = getStorage(STORAGE_KEY)
-
-  if (savedLogs && Array.isArray(savedLogs) && savedLogs.length > 0) {
-    invocationLogs.value = savedLogs
-  } else {
-    initMockData()
-  }
+  initMockData()
 }
 
 // 过滤后的日志列表
@@ -537,7 +593,51 @@ const handleViewDetail = (row: InvocationLog) => {
 
 // 导出日志
 const handleExport = () => {
-  ElMessage.success('日志导出功能（演示模式）- 已生成 JSON 文件')
+  const headers = [
+    '日志ID',
+    '服务名称',
+    'API端点',
+    '状态码',
+    '耗时(ms)',
+    'TTFT(ms)',
+    'TPS',
+    '组织',
+    'API Key',
+    'IP地址',
+    '模型',
+    '总Token',
+    '费用($)',
+    '调用时间',
+  ]
+  const rows = filteredLogs.value.map((log) => [
+    log.id,
+    log.serviceName,
+    log.endpoint,
+    log.statusCode,
+    log.latency,
+    log.ttft,
+    log.tps,
+    log.organization,
+    log.apiKey,
+    log.ipAddress,
+    log.modelName,
+    log.totalTokens,
+    log.estimatedCost,
+    log.timestamp,
+  ])
+
+  const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n')
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `invocation-logs-${Date.now()}.csv`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
+  ElMessage.success('日志导出成功')
 }
 
 // 工具函数

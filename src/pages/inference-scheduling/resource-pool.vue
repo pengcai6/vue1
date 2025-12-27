@@ -1,18 +1,12 @@
 <template>
-  <div class="resource-pool-page">
+  <div class="resource-pool-page p-5">
     <el-card class="header-card">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-bold mb-2">
-            资源池管理（异构加速器）
-          </h2>
-          <p class="text-gray-500">
-            统一管理和调度异构GPU加速卡资源
-          </p>
+          <h2 class="text-2xl font-bold mb-2">资源池管理（异构加速器）</h2>
+          <p class="text-gray-500">统一管理和调度异构GPU加速卡资源</p>
         </div>
-        <el-button type="primary" @click="showAddDialog = true">
-          添加GPU节点
-        </el-button>
+        <el-button type="primary" @click="showAddDialog = true"> 添加GPU节点 </el-button>
       </div>
     </el-card>
 
@@ -30,8 +24,8 @@
       </el-col>
       <el-col :span="6">
         <el-card>
-          <el-statistic 
-            title="可用GPU卡数" 
+          <el-statistic
+            title="可用GPU卡数"
             :value="availableGPUs"
             :value-style="{ color: '#67C23A' }"
           />
@@ -39,12 +33,7 @@
       </el-col>
       <el-col :span="6">
         <el-card>
-          <el-statistic 
-            title="平均利用率" 
-            :value="avgUtilization"
-            suffix="%"
-            :precision="1"
-          />
+          <el-statistic title="平均利用率" :value="avgUtilization" suffix="%" :precision="1" />
         </el-card>
       </el-col>
     </el-row>
@@ -78,20 +67,16 @@
         </el-table-column>
         <el-table-column prop="gpuCount" label="GPU数量" width="100" align="center" />
         <el-table-column prop="memoryPerGPU" label="单卡显存" width="120" align="center">
-          <template #default="{ row }">
-            {{ row.memoryPerGPU }} GB
-          </template>
+          <template #default="{ row }"> {{ row.memoryPerGPU }} GB </template>
         </el-table-column>
         <el-table-column prop="totalMemory" label="总显存" width="120" align="center">
-          <template #default="{ row }">
-            {{ row.gpuCount * row.memoryPerGPU }} GB
-          </template>
+          <template #default="{ row }"> {{ row.gpuCount * row.memoryPerGPU }} GB </template>
         </el-table-column>
         <el-table-column label="利用率" width="180">
           <template #default="{ row }">
             <div class="flex items-center gap-2">
-              <el-progress 
-                :percentage="row.utilization" 
+              <el-progress
+                :percentage="row.utilization"
                 :color="getUtilizationColor(row.utilization)"
                 :show-text="false"
               />
@@ -108,25 +93,17 @@
         </el-table-column>
         <el-table-column prop="availableGPUs" label="可用卡数" width="100" align="center">
           <template #default="{ row }">
-            <span class="text-green-600 font-bold">{{ row.availableGPUs }}</span> / {{ row.gpuCount }}
+            <span class="text-green-600 font-bold">{{ row.availableGPUs }}</span> /
+            {{ row.gpuCount }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewDetail(row)">
-              详情
-            </el-button>
-            <el-button link type="warning" @click="editNode(row)">
-              编辑
-            </el-button>
-            <el-popconfirm
-              title="确定要删除此节点吗？"
-              @confirm="deleteNode(row.id)"
-            >
+            <el-button link type="primary" @click="viewDetail(row)"> 详情 </el-button>
+            <el-button link type="warning" @click="editNode(row)"> 编辑 </el-button>
+            <el-popconfirm title="确定要删除此节点吗？" @confirm="deleteNode(row.id)">
               <template #reference>
-                <el-button link type="danger">
-                  删除
-                </el-button>
+                <el-button link type="danger"> 删除 </el-button>
               </template>
             </el-popconfirm>
           </template>
@@ -181,19 +158,27 @@
     </el-dialog>
 
     <!-- 节点详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="GPU节点详情"
-      width="800px"
-    >
+    <el-dialog v-model="showDetailDialog" title="GPU节点详情" width="800px">
       <el-descriptions v-if="currentNode" :column="2" border>
-        <el-descriptions-item label="节点名称">{{ currentNode.nodeName }}</el-descriptions-item>
-        <el-descriptions-item label="GPU类型">{{ currentNode.gpuType }}</el-descriptions-item>
-        <el-descriptions-item label="GPU数量">{{ currentNode.gpuCount }}</el-descriptions-item>
-        <el-descriptions-item label="单卡显存">{{ currentNode.memoryPerGPU }} GB</el-descriptions-item>
-        <el-descriptions-item label="总显存">{{ currentNode.gpuCount * currentNode.memoryPerGPU }} GB</el-descriptions-item>
-        <el-descriptions-item label="利用率">{{ currentNode.utilization }}%</el-descriptions-item>
-        <el-descriptions-item label="可用卡数">{{ currentNode.availableGPUs }} / {{ currentNode.gpuCount }}</el-descriptions-item>
+        <el-descriptions-item label="节点名称">
+          {{ currentNode.nodeName }}
+        </el-descriptions-item>
+        <el-descriptions-item label="GPU类型">
+          {{ currentNode.gpuType }}
+        </el-descriptions-item>
+        <el-descriptions-item label="GPU数量">
+          {{ currentNode.gpuCount }}
+        </el-descriptions-item>
+        <el-descriptions-item label="单卡显存">
+          {{ currentNode.memoryPerGPU }} GB
+        </el-descriptions-item>
+        <el-descriptions-item label="总显存">
+          {{ currentNode.gpuCount * currentNode.memoryPerGPU }} GB
+        </el-descriptions-item>
+        <el-descriptions-item label="利用率"> {{ currentNode.utilization }}% </el-descriptions-item>
+        <el-descriptions-item label="可用卡数">
+          {{ currentNode.availableGPUs }} / {{ currentNode.gpuCount }}
+        </el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="currentNode.status === 'online' ? 'success' : 'danger'">
             {{ currentNode.status === 'online' ? '在线' : '离线' }}
@@ -206,7 +191,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { getStorage, setStorage } from '~/utils/storage'
 
 interface GPUNode {
   id: string
@@ -291,11 +275,11 @@ const nodeForm = ref<Partial<GPUNode>>({
 
 // 计算属性
 const filteredNodes = computed(() => {
-  if (!searchText.value)
-    return gpuNodes.value
-  return gpuNodes.value.filter(node =>
-    node.nodeName.toLowerCase().includes(searchText.value.toLowerCase())
-    || node.gpuType.toLowerCase().includes(searchText.value.toLowerCase()),
+  if (!searchText.value) return gpuNodes.value
+  return gpuNodes.value.filter(
+    (node) =>
+      node.nodeName.toLowerCase().includes(searchText.value.toLowerCase()) ||
+      node.gpuType.toLowerCase().includes(searchText.value.toLowerCase()),
   )
 })
 
@@ -308,30 +292,23 @@ const availableGPUs = computed(() => {
 })
 
 const avgUtilization = computed(() => {
-  if (gpuNodes.value.length === 0)
-    return 0
+  if (gpuNodes.value.length === 0) return 0
   const total = gpuNodes.value.reduce((sum, node) => sum + node.utilization, 0)
   return total / gpuNodes.value.length
 })
 
 // 方法
-function getGPUTypeTag(type: string) {
-  if (type.includes('NVIDIA'))
-    return 'success'
-  if (type.includes('昇腾'))
-    return 'warning'
-  if (type.includes('沐曦'))
-    return 'danger'
-  if (type.includes('海光'))
-    return 'info'
+function getGPUTypeTag(type: string): '' | 'success' | 'warning' | 'danger' | 'info' {
+  if (type.includes('NVIDIA')) return 'success'
+  if (type.includes('昇腾')) return 'warning'
+  if (type.includes('沐曦')) return 'danger'
+  if (type.includes('海光')) return 'info'
   return ''
 }
 
-function getUtilizationColor(utilization: number) {
-  if (utilization < 30)
-    return '#67C23A'
-  if (utilization < 70)
-    return '#E6A23C'
+function getUtilizationColor(utilization: number): string {
+  if (utilization < 30) return '#67C23A'
+  if (utilization < 70) return '#E6A23C'
   return '#F56C6C'
 }
 
@@ -347,20 +324,19 @@ function editNode(node: GPUNode) {
 }
 
 function deleteNode(id: string) {
-  gpuNodes.value = gpuNodes.value.filter(node => node.id !== id)
+  gpuNodes.value = gpuNodes.value.filter((node) => node.id !== id)
   saveToStorage()
 }
 
 function saveNode() {
   if (isEditing.value && nodeForm.value.id) {
-    const index = gpuNodes.value.findIndex(n => n.id === nodeForm.value.id)
+    const index = gpuNodes.value.findIndex((n) => n.id === nodeForm.value.id)
     if (index !== -1) {
-      gpuNodes.value[index] = { ...nodeForm.value as GPUNode }
+      gpuNodes.value[index] = { ...(nodeForm.value as GPUNode) }
     }
-  }
-  else {
+  } else {
     const newNode: GPUNode = {
-      ...nodeForm.value as GPUNode,
+      ...(nodeForm.value as GPUNode),
       id: Date.now().toString(),
     }
     gpuNodes.value.push(newNode)
@@ -384,17 +360,16 @@ function resetForm() {
 }
 
 function saveToStorage() {
-  setStorage('gpu-nodes', gpuNodes.value)
+  localStorage.setItem('gpu-nodes', JSON.stringify(gpuNodes.value))
 }
 
 function loadFromStorage() {
-  const stored = getStorage<GPUNode[]>('gpu-nodes', [])
-  if (stored.length === 0) {
+  const stored = localStorage.getItem('gpu-nodes')
+  if (stored) {
+    gpuNodes.value = JSON.parse(stored)
+  } else {
     gpuNodes.value = initMockData()
     saveToStorage()
-  }
-  else {
-    gpuNodes.value = stored
   }
 }
 
@@ -402,13 +377,3 @@ onMounted(() => {
   loadFromStorage()
 })
 </script>
-
-<style scoped lang="scss">
-.resource-pool-page {
-  padding: 20px;
-  
-  .header-card {
-    margin-bottom: 20px;
-  }
-}
-</style>
